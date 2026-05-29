@@ -17,6 +17,8 @@ const getRelativeMonthString = (monthsAgo: number) => {
   return date.toISOString().substring(0, 7); // YYYY-MM
 };
 
+const normalizeMonthKey = (month: string) => month.substring(0, 7);
+
 // Default Mock Data for Demo Mode
 const getInitialMockData = () => {
   const thisMonth = getRelativeMonthString(0);
@@ -383,17 +385,20 @@ class LocalStorageProviderImpl implements DatabaseProvider {
 
   async getBudgets(month: string): Promise<Budget[]> {
     const { budgets } = this.getStorageData();
-    return budgets.filter((b) => b.month === month);
+    const monthKey = normalizeMonthKey(month);
+    return budgets.filter((b) => normalizeMonthKey(b.month) === monthKey);
   }
 
   async setBudget(data: { category: string; limit_amount: number; month: string }): Promise<Budget> {
     const { budgets } = this.getStorageData();
+    const monthKey = normalizeMonthKey(data.month);
     const index = budgets.findIndex((b) => b.category === data.category && b.month === data.month);
     
     if (index !== -1) {
       budgets[index] = {
         ...budgets[index],
         limit_amount: data.limit_amount,
+        month: monthKey,
       };
       this.saveBudgets(budgets);
       return budgets[index];
@@ -403,7 +408,7 @@ class LocalStorageProviderImpl implements DatabaseProvider {
         user_id: 'demo-user',
         category: data.category,
         limit_amount: data.limit_amount,
-        month: data.month,
+        month: monthKey,
         created_at: new Date().toISOString(),
       };
       budgets.push(newBudget);
@@ -414,7 +419,8 @@ class LocalStorageProviderImpl implements DatabaseProvider {
 
   async deleteBudget(category: string, month: string): Promise<void> {
     const { budgets } = this.getStorageData();
-    const filtered = budgets.filter((b) => !(b.category === category && b.month === month));
+    const monthKey = normalizeMonthKey(month);
+    const filtered = budgets.filter((b) => !(b.category === category && normalizeMonthKey(b.month) === monthKey));
     this.saveBudgets(filtered);
   }
 }
@@ -620,11 +626,17 @@ class SupabaseProviderImpl implements DatabaseProvider {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
+    const monthKey = normalizeMonthKey(month);
+    const nextMonthDate = new Date(`${monthKey}-01T00:00:00Z`);
+    nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+    const nextMonthKey = nextMonthDate.toISOString().substring(0, 7);
+
     const { data, error } = await supabase
       .from('budgets')
       .select('*')
       .eq('user_id', user.id)
-      .eq('month', month);
+      .gte('month', monthKey)
+      .lt('month', nextMonthKey);
 
     if (error) {
       console.error('Error fetching budgets:', error);
@@ -638,13 +650,15 @@ class SupabaseProviderImpl implements DatabaseProvider {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    const monthKey = normalizeMonthKey(data.month);
+
     const { data: upserted, error } = await supabase
       .from('budgets')
       .upsert({
         user_id: user.id,
         category: data.category,
         limit_amount: data.limit_amount,
-        month: data.month
+        month: monthKey
       }, {
         onConflict: 'user_id,category,month'
       })
@@ -660,12 +674,19 @@ class SupabaseProviderImpl implements DatabaseProvider {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    const monthKey = normalizeMonthKey(month);
+
     const { error } = await supabase
       .from('budgets')
       .delete()
       .eq('user_id', user.id)
       .eq('category', category)
-      .eq('month', month);
+      .gte('month', monthKey)
+      .lt('month', (() => {
+        const nextMonthDate = new Date(`${monthKey}-01T00:00:00Z`);
+        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+        return nextMonthDate.toISOString().substring(0, 7);
+      })());
 
     if (error) throw error;
   }

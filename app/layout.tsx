@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_APP_URL || "https://scal-epay.vercel.app";
+  process.env.NEXT_PUBLIC_APP_URL || "https://scale-pay.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),

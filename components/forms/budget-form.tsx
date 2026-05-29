@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { budgetSchema, BudgetFormValues } from '@/schemas/transaction-schema';
@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { CATEGORY_PRESETS } from '@/utils/constants';
 
 interface BudgetFormProps {
@@ -28,6 +29,8 @@ interface BudgetFormProps {
 export function BudgetForm({ category = '', limitAmount, month, onSuccess }: BudgetFormProps) {
   const { profile, updateBudget } = useDatabase();
   const currency = profile?.currency || 'GHS';
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const selectedMonthDate = month ? `${month}-01` : undefined;
 
   const {
     register,
@@ -53,11 +56,13 @@ export function BudgetForm({ category = '', limitAmount, month, onSuccess }: Bud
   }, [category, limitAmount, month, reset]);
 
   const onSubmit = async (values: BudgetFormValues) => {
+    setSaveError(null);
     try {
       await updateBudget(values.category, values.limit_amount, values.month);
       onSuccess();
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Failed to save budget.';
+      setSaveError(msg);
     }
   };
 
@@ -121,34 +126,47 @@ export function BudgetForm({ category = '', limitAmount, month, onSuccess }: Bud
         )}
       </div>
 
-      {/* Month Field (Hidden or read-only/disabled) */}
+      {/* Budget Month Picker */}
       <div className="space-y-1.5">
-        <Label htmlFor="budget-month">Budget Period</Label>
-        <Input
-          id="budget-month"
-          type="month"
-          {...register('month')}
-          className="bg-muted/50"
-          readOnly
+        <Label htmlFor="budget-month">Budget Month</Label>
+        <Controller
+          name="month"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              value={field.value ? `${field.value}-01` : selectedMonthDate}
+              onChange={(isoDate) => field.onChange(isoDate.substring(0, 7))}
+              placeholder="Pick a month"
+              monthOnly
+              className={errors.month ? 'border-destructive focus-visible:ring-destructive' : ''}
+            />
+          )}
         />
-        {errors.month && (
-          <p className="text-xs text-destructive">{errors.month.message}</p>
-        )}
+        <p className="text-xs text-muted-foreground">
+          This budget lasts for one calendar month only.
+        </p>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : category ? 'Update Budget' : 'Set Budget'}
-        </Button>
+      <div className="space-y-3 pt-4 border-t border-border/50">
+        {saveError && (
+          <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+            {saveError}
+          </p>
+        )}
+        <div className="flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onSuccess}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : category ? 'Update Budget' : 'Set Budget'}
+          </Button>
+        </div>
       </div>
     </form>
   );

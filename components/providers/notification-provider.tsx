@@ -33,28 +33,32 @@ export function useNotifications() {
 }
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [mounted, setMounted] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
+    if (typeof window === 'undefined') return [];
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    setMounted(true);
     const stored = localStorage.getItem('scale_pay_notifications');
-    if (stored) {
-      try {
-        setNotifications(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse notifications:', e);
-      }
+    if (!stored) return [];
+
+    try {
+      return JSON.parse(stored) as NotificationItem[];
+    } catch (e) {
+      console.error('Failed to parse notifications:', e);
+      return [];
     }
-  }, []);
+  });
 
   // Save to localStorage when state changes
   useEffect(() => {
-    if (mounted) {
-      localStorage.setItem('scale_pay_notifications', JSON.stringify(notifications));
-    }
-  }, [notifications, mounted]);
+    const timeoutId = window.setTimeout(() => {
+      try {
+        localStorage.setItem('scale_pay_notifications', JSON.stringify(notifications));
+      } catch (error) {
+        console.error('Failed to persist notifications:', error);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [notifications]);
 
   const addNotification = useCallback((title: string, description: string, type: NotificationType = 'info') => {
     const newItem: NotificationItem = {

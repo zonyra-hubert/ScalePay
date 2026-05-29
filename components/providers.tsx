@@ -29,7 +29,12 @@ interface DatabaseContextType {
 
 export const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
 
-const db = getDatabaseProvider();
+// Lazy singleton — instantiated once on first use (avoids SSR/CSR mismatch)
+let _db: ReturnType<typeof getDatabaseProvider> | null = null;
+const getDb = () => {
+  if (!_db) _db = getDatabaseProvider();
+  return _db;
+};
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -62,16 +67,16 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
     async function loadData() {
       try {
         setLoading(true);
-        const userProfile = await db.getProfile();
+        const userProfile = await getDb().getProfile();
         if (!active) return;
         setProfile(userProfile);
         
         if (userProfile) {
-          const txs = await db.getTransactions();
+          const txs = await getDb().getTransactions();
           if (!active) return;
           setTransactions(txs);
           
-          const bgts = await db.getBudgets(activeMonth);
+          const bgts = await getDb().getBudgets(activeMonth);
           if (!active) return;
           setBudgets(bgts);
         } else {
@@ -90,20 +95,20 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
     loadData();
 
     // Listen to Supabase auth state changes if Supabase is active
-    if (!db.isDemoMode && supabase) {
+    if (!getDb().isDemoMode && supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!active) return;
 
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           // Re-load profile and data
-          const userProfile = await db.getProfile();
+          const userProfile = await getDb().getProfile();
           if (!active) return;
           setProfile(userProfile);
           if (userProfile) {
-            const txs = await db.getTransactions();
+            const txs = await getDb().getTransactions();
             if (!active) return;
             setTransactions(txs);
-            const bgts = await db.getBudgets(activeMonth);
+            const bgts = await getDb().getBudgets(activeMonth);
             if (!active) return;
             setBudgets(bgts);
           }
@@ -127,7 +132,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const refreshTransactions = async () => {
     try {
-      const txs = await db.getTransactions();
+      const txs = await getDb().getTransactions();
       setTransactions(txs);
     } catch (err) {
       console.error("Failed to refresh transactions:", err);
@@ -136,7 +141,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const refreshBudgets = async (month: string) => {
     try {
-      const bgts = await db.getBudgets(month);
+      const bgts = await getDb().getBudgets(month);
       setBudgets(bgts);
     } catch (err) {
       console.error("Failed to refresh budgets:", err);
@@ -149,13 +154,13 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const addTransaction = async (data: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => {
     try {
-      await db.createTransaction(data);
+      await getDb().createTransaction(data);
       
       // Get fresh data
-      const txs = await db.getTransactions();
+      const txs = await getDb().getTransactions();
       setTransactions(txs);
       
-      const bgts = await db.getBudgets(activeMonth);
+      const bgts = await getDb().getBudgets(activeMonth);
       setBudgets(bgts);
 
       if (data.type === 'expense') {
@@ -229,7 +234,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const editTransaction = async (id: string, data: Partial<Omit<Transaction, 'id' | 'user_id' | 'created_at'>>) => {
     try {
-      await db.updateTransaction(id, data);
+      await getDb().updateTransaction(id, data);
       await refreshTransactions();
       await refreshBudgets(activeMonth);
       
@@ -247,7 +252,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const removeTransaction = async (id: string) => {
     try {
-      await db.deleteTransaction(id);
+      await getDb().deleteTransaction(id);
       await refreshTransactions();
       await refreshBudgets(activeMonth);
       
@@ -266,7 +271,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
   const updateBudget = async (category: string, limit: number | undefined, month: string) => {
     try {
       if (limit === undefined) {
-        await db.deleteBudget(category, month);
+        await getDb().deleteBudget(category, month);
         toast.success('Budget Updated', {
           description: `Removed budget for ${category}.`,
         });
@@ -276,7 +281,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
           'info'
         );
       } else {
-        await db.setBudget({ category, limit_amount: limit, month });
+        await getDb().setBudget({ category, limit_amount: limit, month });
         const limitFormatted = formatVal(limit);
         toast.success('Budget Updated', {
           description: `Set budget limit for ${category} to ${limitFormatted}.`,
@@ -299,7 +304,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: Partial<Omit<Profile, 'id' | 'email' | 'created_at'>>) => {
     try {
-      const updated = await db.updateProfile(data);
+      const updated = await getDb().updateProfile(data);
       setProfile(updated);
       toast.success('Profile Saved', {
         description: 'Your preferences have been successfully updated.',
@@ -320,11 +325,11 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const logOut = async () => {
     try {
-      await db.signOut();
+      await getDb().signOut();
       setProfile(null);
       setTransactions([]);
       setBudgets([]);
-      if (typeof window !== 'undefined' && !db.isDemoMode) {
+      if (typeof window !== 'undefined' && !getDb().isDemoMode) {
         window.location.href = '/';
       }
     } catch (err) {
@@ -335,7 +340,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
   return (
     <DatabaseContext.Provider
       value={{
-        isDemo: db.isDemoMode,
+        isDemo: getDb().isDemoMode,
         profile,
         transactions,
         budgets,

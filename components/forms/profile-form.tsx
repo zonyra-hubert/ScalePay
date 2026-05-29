@@ -78,8 +78,12 @@ export function ProfileForm() {
         monthly_summary: values.monthly_summary,
       });
 
-      // Update local next-themes context
-      setTheme(values.theme);
+      // Update local next-themes context, but do not let theme persistence block the save.
+      try {
+        setTheme(values.theme);
+      } catch (themeError) {
+        console.error('Failed to update theme locally:', themeError);
+      }
 
       reset(values); // reset dirty fields state
     } catch (err) {

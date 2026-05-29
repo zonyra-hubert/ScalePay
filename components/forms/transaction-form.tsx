@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transactionSchema, TransactionFormValues } from '@/schemas/transaction-schema';
@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { CATEGORY_PRESETS } from '@/utils/constants';
 
 interface TransactionFormProps {
@@ -29,6 +30,7 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
   const { profile, addTransaction, editTransaction } = useDatabase();
   const currency = profile?.currency || 'GHS';
   const isEditing = !!transaction;
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const {
     register,
@@ -67,6 +69,7 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
   }, [transaction, reset]);
 
   const onSubmit = async (values: TransactionFormValues) => {
+    setSaveError(null);
     try {
       if (isEditing && transaction) {
         await editTransaction(transaction.id, values);
@@ -75,7 +78,8 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
       }
       onSuccess();
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Failed to save transaction.';
+      setSaveError(msg);
     }
   };
 
@@ -139,12 +143,19 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="date">Date</Label>
-          <Input
-            id="date"
-            type="date"
-            {...register('date')}
-            className={errors.date ? 'border-destructive focus-visible:ring-destructive' : ''}
+          <Label>Date</Label>
+          <Controller
+            name="date"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Pick a date"
+                disableFuture={false}
+                className={errors.date ? 'border-destructive' : ''}
+              />
+            )}
           />
           {errors.date && (
             <p className="text-xs text-destructive">{errors.date.message}</p>
@@ -202,22 +213,29 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSuccess}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          variant={transactionType === 'income' ? 'success' : 'default'}
-        >
-          {isSubmitting ? 'Saving...' : isEditing ? 'Update Transaction' : 'Add Transaction'}
-        </Button>
+      <div className="space-y-3 pt-4 border-t border-border/50">
+        {saveError && (
+          <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+            {saveError}
+          </p>
+        )}
+        <div className="flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onSuccess}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            variant={transactionType === 'income' ? 'default' : 'default'}
+          >
+            {isSubmitting ? 'Saving...' : isEditing ? 'Update Transaction' : 'Add Transaction'}
+          </Button>
+        </div>
       </div>
     </form>
   );
