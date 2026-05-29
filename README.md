@@ -36,18 +36,21 @@
 ### Installation
 
 1. Clone the repository:
+
    ```bash
-   git clone https://github.com/YOUR_USERNAME/scale-pay.git
-   cd scale-pay
+   git clone https://github.com/zonyra-hubert/ScalePay.git
+   cd ScalePay
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Configure Environment Variables:
    Create a `.env.local` file in the root directory and add your Supabase credentials:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
