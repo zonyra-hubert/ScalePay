@@ -304,7 +304,7 @@ export default function TransactionsPage() {
 
       {/* Add Modal */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
           <DialogHeader>
             <DialogTitle>Add Transaction</DialogTitle>
             <DialogDescription>
@@ -317,7 +317,7 @@ export default function TransactionsPage() {
 
       {/* Edit Modal */}
       <Dialog open={!!editingTransaction} onOpenChange={(open) => !open && setEditingTransaction(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
           <DialogHeader>
             <DialogTitle>Edit Transaction</DialogTitle>
             <DialogDescription>
@@ -335,7 +335,7 @@ export default function TransactionsPage() {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={!!deletingTxId} onOpenChange={(open) => !open && setDeletingTxId(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm w-[calc(100%-2rem)] sm:w-full">
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>

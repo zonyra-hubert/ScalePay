@@ -133,7 +133,7 @@ export default function BudgetsPage() {
                 <span>Create Budget</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
               <DialogHeader>
                 <DialogTitle>Create Budget</DialogTitle>
                 <DialogDescription>
@@ -270,7 +270,7 @@ export default function BudgetsPage() {
         open={!!editingBudget}
         onOpenChange={(open) => !open && setEditingBudget(null)}
       >
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
           <DialogHeader>
             <DialogTitle>Adjust Budget Limit</DialogTitle>
             <DialogDescription>
