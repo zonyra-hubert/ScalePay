@@ -44,12 +44,21 @@ export const metadata: Metadata = {
     description:
       "Track your personal expenses, manage budgets, and analyze spending habits with interactive fintech charts. Built with Next.js, Supabase, and Tailwind CSS.",
     siteName: "ScalePay",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ScalePay - Personal Wealth & Expense Tracker",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "ScalePay - Modern Personal Expense Tracker",
     description:
       "Track your personal expenses, manage budgets, and analyze spending habits with interactive fintech charts. Built with Next.js, Supabase, and Tailwind CSS.",
+    images: ["/opengraph-image.png"],
   },
   robots: {
     index: true,
