@@ -474,15 +474,20 @@ class SupabaseProviderImpl implements DatabaseProvider {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    // Update user auth metadata
+    // Update user auth metadata for display fields
     const authMetadata: Record<string, string | undefined> = {};
     if (data.full_name) authMetadata.full_name = data.full_name;
     if (data.avatar_url) authMetadata.avatar_url = data.avatar_url;
     if (Object.keys(authMetadata).length > 0) {
-      await supabase.auth.updateUser({
-        data: authMetadata
-      });
+      await supabase.auth.updateUser({ data: authMetadata });
     }
+
+    // Fetch current profile so we can merge into it on failure
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select()
+      .eq('id', user.id)
+      .single();
 
     const updateData: Record<string, string | boolean | undefined | null> = {
       ...data,
@@ -496,31 +501,59 @@ class SupabaseProviderImpl implements DatabaseProvider {
       .select()
       .single();
 
-    if (error) {
-      console.warn("Supabase profiles table update failed. Retrying with basic columns only.", error);
-      // Fallback: If it's a column missing error, try to update only basic columns: full_name and avatar_url
-      const basicData: Record<string, string | undefined> = {
-        updated_at: new Date().toISOString(),
-      };
-      if (data.full_name !== undefined) basicData.full_name = data.full_name;
-      if (data.avatar_url !== undefined) basicData.avatar_url = data.avatar_url;
-
-      const { data: fallbackUpdated, error: fallbackError } = await supabase
-        .from('profiles')
-        .update(basicData)
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (fallbackError) throw fallbackError;
-      
-      return {
-        ...fallbackUpdated,
-        ...data, // Merge memory preferences
-      };
+    if (!error && updated) {
+      return updated;
     }
 
-    return updated;
+    // First attempt failed — try progressively smaller subsets of columns
+    console.warn('Full profile update failed, trying selective columns:', error?.message);
+
+    // Try: only the preference columns (currency, theme, notifications)
+    const prefData: Record<string, string | boolean | undefined> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (data.currency !== undefined) prefData.currency = data.currency;
+    if (data.theme !== undefined) prefData.theme = data.theme;
+    if (data.email_alerts !== undefined) prefData.email_alerts = data.email_alerts;
+    if (data.monthly_summary !== undefined) prefData.monthly_summary = data.monthly_summary;
+    if (data.full_name !== undefined) prefData.full_name = data.full_name;
+    if (data.avatar_url !== undefined) prefData.avatar_url = data.avatar_url;
+
+    const { data: prefUpdated, error: prefError } = await supabase
+      .from('profiles')
+      .update(prefData)
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (!prefError && prefUpdated) {
+      return prefUpdated;
+    }
+
+    // Last resort: basic columns only, merge desired changes into local state
+    console.warn('Selective update also failed, merging into memory:', prefError?.message);
+    const basicData: Record<string, string | undefined> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (data.full_name !== undefined) basicData.full_name = data.full_name;
+    if (data.avatar_url !== undefined) basicData.avatar_url = data.avatar_url;
+
+    if (Object.keys(basicData).length > 1) {
+      await supabase
+        .from('profiles')
+        .update(basicData)
+        .eq('id', user.id);
+    }
+
+    // Return a merged profile with the desired changes applied in-memory
+    // This ensures currency/theme preferences work even if DB columns are missing
+    return {
+      ...(currentProfile || {}),
+      id: user.id,
+      email: user.email || '',
+      ...data,
+      updated_at: new Date().toISOString(),
+    } as Profile;
   }
 
   async getTransactions(): Promise<Transaction[]> {

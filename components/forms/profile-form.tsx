@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTheme } from 'next-themes';
@@ -32,6 +32,7 @@ const CURRENCIES = [
 export function ProfileForm() {
   const { profile, updateProfile } = useDatabase();
   const { setTheme } = useTheme();
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const {
     register,
@@ -66,6 +67,7 @@ export function ProfileForm() {
   }, [profile, reset]);
 
   const onSubmit = async (values: ProfileFormValues) => {
+    setSaveError(null);
     try {
       await updateProfile({
         full_name: values.full_name,
@@ -75,13 +77,14 @@ export function ProfileForm() {
         email_alerts: values.email_alerts,
         monthly_summary: values.monthly_summary,
       });
-      
+
       // Update local next-themes context
       setTheme(values.theme);
-      
+
       reset(values); // reset dirty fields state
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Failed to save preferences.';
+      setSaveError(msg);
     }
   };
 
@@ -238,14 +241,21 @@ export function ProfileForm() {
         </div>
       </div>
 
-      <div className="flex justify-start gap-3 pt-2">
-        <Button
-          type="submit"
-          disabled={isSubmitting || !isDirty}
-          className="shadow-sm"
-        >
-          {isSubmitting ? 'Saving Changes...' : 'Save Preferences'}
-        </Button>
+      <div className="flex flex-col gap-2 pt-2">
+        {saveError && (
+          <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+            {saveError}
+          </p>
+        )}
+        <div className="flex justify-start">
+          <Button
+            type="submit"
+            disabled={isSubmitting || !isDirty}
+            className="shadow-sm"
+          >
+            {isSubmitting ? 'Saving Changes...' : 'Save Preferences'}
+          </Button>
+        </div>
       </div>
     </form>
   );
