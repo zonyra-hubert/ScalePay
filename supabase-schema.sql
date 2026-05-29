@@ -6,7 +6,7 @@ create table if not exists public.profiles (
   email text not null,
   full_name text,
   avatar_url text,
-  currency text default 'USD',
+  currency text default 'GHS',
   theme text default 'dark' check (theme in ('light', 'dark', 'system')),
   email_alerts boolean default true,
   monthly_summary boolean default true,

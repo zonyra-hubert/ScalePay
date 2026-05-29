@@ -43,7 +43,7 @@ export default function DashboardPage() {
     activeMonth,
     setActiveMonth,
   } = useDatabase();
-  const currency = profile?.currency || 'USD';
+  const currency = profile?.currency || 'GHS';
 
   const [isAddTxOpen, setIsAddTxOpen] = useState(false);
   const [isSetBudgetOpen, setIsSetBudgetOpen] = useState(false);

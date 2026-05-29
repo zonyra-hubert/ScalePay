@@ -64,7 +64,7 @@ const getCategoryIcon = (category: string) => {
 
 export default function TransactionsPage() {
   const { profile, transactions, removeTransaction } = useDatabase();
-  const currency = profile?.currency || 'USD';
+  const currency = profile?.currency || 'GHS';
 
   // Search & Filter State
   const [search, setSearch] = useState('');

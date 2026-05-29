@@ -37,7 +37,7 @@ export default function BudgetsPage() {
     setActiveMonth,
     updateBudget,
   } = useDatabase();
-  const currency = profile?.currency || 'USD';
+  const currency = profile?.currency || 'GHS';
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<{ category: string; limit_amount: number } | null>(null);

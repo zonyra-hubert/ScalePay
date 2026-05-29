@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 
 const CURRENCIES = [
+  { code: 'GHS', name: 'Ghanaian Cedi (₵)' },
   { code: 'USD', name: 'US Dollar ($)' },
   { code: 'EUR', name: 'Euro (€)' },
   { code: 'GBP', name: 'British Pound (£)' },
@@ -43,7 +44,7 @@ export function ProfileForm() {
     defaultValues: {
       full_name: '',
       avatar_url: '',
-      currency: 'USD',
+      currency: 'GHS',
       theme: 'dark',
       email_alerts: true,
       monthly_summary: true,
@@ -56,7 +57,7 @@ export function ProfileForm() {
       reset({
         full_name: profile.full_name || '',
         avatar_url: profile.avatar_url || '',
-        currency: profile.currency || 'USD',
+        currency: profile.currency || 'GHS',
         theme: profile.theme || 'dark',
         email_alerts: profile.email_alerts ?? true,
         monthly_summary: profile.monthly_summary ?? true,

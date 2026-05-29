@@ -1,14 +1,14 @@
-export function formatCurrency(amount: number, currencyCode: string = 'USD'): string {
+export function formatCurrency(amount: number, currencyCode: string = 'GHS'): string {
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currencyCode,
     }).format(amount);
   } catch (e) {
-    console.error(`Failed to format currency with code: ${currencyCode}. Falling back to USD.`, e);
+    console.error(`Failed to format currency with code: ${currencyCode}. Falling back to GHS.`, e);
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'GHS',
     }).format(amount);
   }
 }

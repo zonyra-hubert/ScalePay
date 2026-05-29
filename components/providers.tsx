@@ -144,7 +144,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
   };
 
   const formatVal = (val: number) => {
-    return formatCurrency(val, profile?.currency || 'USD');
+    return formatCurrency(val, profile?.currency || 'GHS');
   };
 
   const addTransaction = async (data: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => {
