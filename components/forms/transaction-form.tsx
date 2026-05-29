@@ -26,7 +26,8 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ transaction, onSuccess, defaultType = 'expense' }: TransactionFormProps) {
-  const { addTransaction, editTransaction } = useDatabase();
+  const { profile, addTransaction, editTransaction } = useDatabase();
+  const currency = profile?.currency || 'GHS';
   const isEditing = !!transaction;
 
   const {
@@ -123,7 +124,7 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
       {/* Amount and Date */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="amount">Amount ($)</Label>
+          <Label htmlFor="amount">Amount ({currency})</Label>
           <Input
             id="amount"
             type="number"

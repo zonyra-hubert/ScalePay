@@ -26,7 +26,8 @@ interface BudgetFormProps {
 }
 
 export function BudgetForm({ category = '', limitAmount, month, onSuccess }: BudgetFormProps) {
-  const { updateBudget } = useDatabase();
+  const { profile, updateBudget } = useDatabase();
+  const currency = profile?.currency || 'GHS';
 
   const {
     register,
@@ -106,7 +107,7 @@ export function BudgetForm({ category = '', limitAmount, month, onSuccess }: Bud
 
       {/* Budget Limit Amount */}
       <div className="space-y-1.5">
-        <Label htmlFor="limit_amount">Monthly Limit ($)</Label>
+        <Label htmlFor="limit_amount">Monthly Limit ({currency})</Label>
         <Input
           id="limit_amount"
           type="number"

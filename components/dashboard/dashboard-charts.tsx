@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/utils/formatters';
+import { useDatabase } from '@/hooks/use-database';
 
 interface ChartDataPoint {
   name: string;
@@ -36,7 +37,7 @@ interface DashboardChartsProps {
 }
 
 // Custom tooltips declared outside of render to prevent recreation/performance warning
-const CustomTooltipArea = ({ active, payload, label }: any) => {
+const CustomTooltipArea = ({ active, payload, label, currency }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-popover border border-border p-3 rounded-lg shadow-xl text-xs space-y-1">
@@ -51,7 +52,7 @@ const CustomTooltipArea = ({ active, payload, label }: any) => {
               {entry.name === 'income' ? 'Income' : 'Expense'}
             </span>
             <span className="font-semibold text-foreground">
-              {formatCurrency(entry.value)}
+              {formatCurrency(entry.value, currency)}
             </span>
           </div>
         ))}
@@ -61,7 +62,7 @@ const CustomTooltipArea = ({ active, payload, label }: any) => {
   return null;
 };
 
-const CustomTooltipPie = ({ active, payload }: any) => {
+const CustomTooltipPie = ({ active, payload, currency }: any) => {
   if (active && payload && payload.length) {
     const entry = payload[0];
     return (
@@ -74,7 +75,7 @@ const CustomTooltipPie = ({ active, payload }: any) => {
           {entry.name}
         </span>
         <span className="font-bold text-foreground">
-          {formatCurrency(entry.value)}
+          {formatCurrency(entry.value, currency)}
         </span>
       </div>
     );
@@ -83,6 +84,8 @@ const CustomTooltipPie = ({ active, payload }: any) => {
 };
 
 export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }: DashboardChartsProps) {
+  const { profile } = useDatabase();
+  const currency = profile?.currency || 'GHS';
   const [activeTab, setActiveTab] = useState<'trends' | 'categories'>('trends');
 
   return (
@@ -156,9 +159,12 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => {
+                    const symbol = currency === 'GHS' ? '₵' : '$';
+                    return `${symbol}${value}`;
+                  }}
                 />
-                <Tooltip content={<CustomTooltipArea />} cursor={{ stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }} />
+                <Tooltip content={<CustomTooltipArea currency={currency} />} cursor={{ stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }} />
                 <Area
                   type="monotone"
                   dataKey="income"
@@ -191,7 +197,7 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
               <div className="h-[220px] w-[220px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Tooltip content={<CustomTooltipPie />} />
+                    <Tooltip content={<CustomTooltipPie currency={currency} />} />
                     <Pie
                       data={categoryData}
                       cx="50%"
@@ -221,7 +227,7 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
                       <span className="truncate max-w-[100px]">{entry.name}</span>
                     </span>
                     <span className="font-semibold text-foreground ml-2">
-                      {formatCurrency(entry.value)}
+                      {formatCurrency(entry.value, currency)}
                     </span>
                   </div>
                 ))}
