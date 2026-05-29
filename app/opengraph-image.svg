@@ -1,0 +1,35 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#090d16"/>
+  
+  <!-- Glowing Background Effects -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5865F2" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#090d16" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="600" cy="315" r="500" fill="url(#glow)"/>
+
+  <!-- Logo (transformed to 160x160 scale at coordinates 520, 110) -->
+  <g transform="translate(520, 110)">
+    <rect width="160" height="160" rx="44" fill="#5865F2"/>
+    <circle cx="67.2" cy="92.8" r="25.6" stroke="white" stroke-width="8" fill="none"/>
+    <path d="M63.2 87.2 L67.2 83.2 V102.4" stroke="white" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="92.8" cy="67.2" r="25.6" stroke="white" stroke-width="8" fill="#5865F2"/>
+    <path d="M88.8 61.6 L92.8 57.6 V76.8" stroke="white" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Title Text -->
+  <text x="600" y="375" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="72" fill="url(#textGrad)" text-anchor="middle" letter-spacing="-0.03em">ScalePay</text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="425" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="24" fill="#6366f1" text-anchor="middle" letter-spacing="0.15em">PERSONAL WEALTH &amp; EXPENSE TRACKER</text>
+  
+  <!-- Feature Bullets -->
+  <text x="600" y="485" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="400" font-size="20" fill="#64748b" text-anchor="middle" letter-spacing="0.02em">Real-Time Analytics  •  Smart Budget Limits  •  Supabase Cloud Sync</text>
+</svg>
