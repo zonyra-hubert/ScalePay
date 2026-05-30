@@ -215,7 +215,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Month controller */}
-        <div className="flex items-center gap-1.5 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
           <div className="flex items-center bg-card border border-border rounded-lg p-1.5 shadow-sm">
             <button
               onClick={handlePrevMonth}
