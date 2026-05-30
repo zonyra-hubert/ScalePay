@@ -131,17 +131,22 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
           event === "TOKEN_REFRESHED" ||
           event === "USER_UPDATED"
         ) {
-          // Re-load profile and data
-          const userProfile = await getDb().getProfile();
-          if (!active) return;
-          setProfile(userProfile);
-          if (userProfile) {
-            const txs = await getDb().getTransactions();
+          setLoading(true);
+          try {
+            // Re-load profile and data
+            const userProfile = await getDb().getProfile();
             if (!active) return;
-            setTransactions(txs);
-            const bgts = await getDb().getBudgets(activeMonth);
-            if (!active) return;
-            setBudgets(bgts);
+            setProfile(userProfile);
+            if (userProfile) {
+              const txs = await getDb().getTransactions();
+              if (!active) return;
+              setTransactions(txs);
+              const bgts = await getDb().getBudgets(activeMonth);
+              if (!active) return;
+              setBudgets(bgts);
+            }
+          } finally {
+            if (active) setLoading(false);
           }
         } else if (event === "SIGNED_OUT") {
           setProfile(null);

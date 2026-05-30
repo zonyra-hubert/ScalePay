@@ -41,7 +41,7 @@ export default function LandingPage() {
     }
   }, [profile, loading, router]);
 
-  if (loading) {
+  if (loading || profile) {
     return (
       <div className="min-h-screen bg-[#090d16] flex flex-col items-center justify-center text-slate-100">
         <div className="flex flex-col items-center gap-4">
@@ -86,7 +86,9 @@ export default function LandingPage() {
           password,
         });
         if (error) throw error;
-        // The providers hook will automatically pick up the session and redirect
+        
+        // Push manually to ensure immediate navigation
+        router.push("/dashboard");
       }
     } catch (err) {
       const errorMsg =
