@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
+import { Loader2 } from 'lucide-react';
 import { CATEGORY_PRESETS } from '@/utils/constants';
 
 interface TransactionFormProps {
@@ -233,7 +234,16 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
             disabled={isSubmitting}
             variant={transactionType === 'income' ? 'default' : 'default'}
           >
-            {isSubmitting ? 'Saving...' : isEditing ? 'Update Transaction' : 'Add Transaction'}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : isEditing ? (
+              'Update Transaction'
+            ) : (
+              'Add Transaction'
+            )}
           </Button>
         </div>
       </div>

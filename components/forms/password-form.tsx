@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { passwordSchema, PasswordFormValues } from '@/schemas/settings-schema';
 import { supabase } from '@/lib/supabase';
 import { useDatabase } from '@/hooks/use-database';
@@ -130,7 +130,14 @@ export function PasswordForm() {
 
       <div className="flex justify-start pt-2">
         <Button type="submit" disabled={isSubmitting} className="shadow-sm">
-          {isSubmitting ? 'Updating Password...' : 'Update Password'}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Updating Password...
+            </>
+          ) : (
+            'Update Password'
+          )}
         </Button>
       </div>
     </form>

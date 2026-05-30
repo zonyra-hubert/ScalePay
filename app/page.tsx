@@ -19,6 +19,7 @@ import {
   Activity,
   TrendingUp,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { supabase, hasSupabase } from "@/lib/supabase";
 import { Logo } from "@/components/logo";
@@ -249,11 +250,16 @@ export default function LandingPage() {
                       className="w-full font-semibold"
                       disabled={authLoading}
                     >
-                      {authLoading
-                        ? "Verifying..."
-                        : isSignUp
-                          ? "Create Account"
-                          : "Sign In"}
+                      {authLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : isSignUp ? (
+                        "Create Account"
+                      ) : (
+                        "Sign In"
+                      )}
                     </Button>
                   </form>
 

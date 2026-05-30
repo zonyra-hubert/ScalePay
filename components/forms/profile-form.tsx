@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
 const CURRENCIES = [
   { code: 'GHS', name: 'Ghanaian Cedi (₵)' },
@@ -257,7 +258,14 @@ export function ProfileForm() {
             disabled={isSubmitting || !isDirty}
             className="shadow-sm"
           >
-            {isSubmitting ? 'Saving Changes...' : 'Save Preferences'}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving Changes...
+              </>
+            ) : (
+              'Save Preferences'
+            )}
           </Button>
         </div>
       </div>

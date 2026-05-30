@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { CATEGORY_PRESETS } from '@/utils/constants';
+import { Loader2 } from 'lucide-react';
 
 interface BudgetFormProps {
   category?: string;
@@ -157,7 +158,16 @@ export function BudgetForm({ category = '', limitAmount, month, onSuccess }: Bud
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : category ? 'Update Budget' : 'Set Budget'}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : category ? (
+              'Update Budget'
+            ) : (
+              'Set Budget'
+            )}
           </Button>
         </div>
       </div>
