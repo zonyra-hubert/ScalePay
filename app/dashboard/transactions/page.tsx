@@ -265,7 +265,7 @@ export default function TransactionsPage() {
                         </td>
 
                         {/* Amount */}
-                        <td className={`p-4 text-right font-bold text-base whitespace-nowrap ${tx.type === 'income' ? 'text-emerald-500' : 'text-foreground'}`}>
+                        <td className={`p-4 text-right font-bold text-base whitespace-nowrap ${tx.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
                           {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
                         </td>
 

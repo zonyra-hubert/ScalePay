@@ -465,7 +465,7 @@ export default function DashboardPage() {
                           {formatDate(tx.date)}
                         </td>
                         <td
-                          className={`py-3 text-right font-bold ${tx.type === "income" ? "text-emerald-500" : "text-foreground"}`}
+                          className={`py-3 text-right font-bold ${tx.type === "income" ? "text-emerald-500" : "text-rose-500"}`}
                         >
                           {tx.type === "income" ? "+" : "-"}
                           {formatCurrency(tx.amount, currency)}
@@ -492,7 +492,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <span
-                      className={`text-sm font-bold ml-3 shrink-0 ${tx.type === "income" ? "text-emerald-500" : "text-foreground"}`}
+                      className={`text-sm font-bold ml-3 shrink-0 ${tx.type === "income" ? "text-emerald-500" : "text-rose-500"}`}
                     >
                       {tx.type === "income" ? "+" : "-"}
                       {formatCurrency(tx.amount, currency)}
