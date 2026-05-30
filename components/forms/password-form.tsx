@@ -40,9 +40,14 @@ export function PasswordForm() {
         await new Promise((resolve) => setTimeout(resolve, 1200));
       } else {
         // Live Supabase password update
-        const { error } = await supabase.auth.updateUser({
-          password: values.newPassword,
-        });
+        const { withTimeout } = await import('@/lib/utils');
+        const { error } = await withTimeout(
+          supabase.auth.updateUser({
+            password: values.newPassword,
+          }),
+          10000,
+          'Supabase connection timed out. Your project may be paused or offline.'
+        );
         if (error) throw error;
       }
 

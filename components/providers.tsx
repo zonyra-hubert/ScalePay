@@ -304,7 +304,12 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: Partial<Omit<Profile, 'id' | 'email' | 'created_at'>>) => {
     try {
-      const updated = await getDb().updateProfile(data);
+      const { withTimeout } = await import('@/lib/utils');
+      const updated = await withTimeout(
+        getDb().updateProfile(data), 
+        10000, 
+        'Supabase connection timed out. Your project may be paused or offline.'
+      );
       setProfile(updated);
       toast.success('Profile Saved', {
         description: 'Your preferences have been successfully updated.',
