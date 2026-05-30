@@ -133,7 +133,7 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
               <p className="text-xs text-slate-500 mt-1">Add transactions to populate these charts.</p>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
               <AreaChart data={monthlyData} margin={{ top: 10, right: 5, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
@@ -195,7 +195,7 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
           ) : (
             <div className="h-full w-full flex flex-col sm:flex-row items-center justify-center gap-8">
               <div className="h-[220px] w-[220px] shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
                   <PieChart>
                     <Tooltip content={<CustomTooltipPie currency={currency} />} />
                     <Pie
