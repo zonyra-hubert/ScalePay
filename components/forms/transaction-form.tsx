@@ -43,7 +43,14 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
     reset,
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as any,
-    defaultValues: {
+    defaultValues: transaction ? {
+      title: transaction.title,
+      amount: transaction.amount as any,
+      date: transaction.date,
+      category: transaction.category,
+      type: transaction.type,
+      description: transaction.description || '',
+    } : {
       title: '',
       amount: '' as any,
       date: new Date().toISOString().split('T')[0],
@@ -171,7 +178,7 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
           name="category"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select onValueChange={field.onChange} value={field.value || undefined}>
               <SelectTrigger
                 id="category"
                 className={errors.category ? 'border-destructive focus-visible:ring-destructive' : ''}
