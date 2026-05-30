@@ -1,13 +1,20 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useDatabase } from '@/hooks/use-database';
-import { ModeToggle } from '@/components/mode-toggle';
-import { NotificationsDropdown } from '@/components/dashboard/notifications-dropdown';
-import { LayoutDashboard, Receipt, Wallet, LogOut, Sparkles, Settings } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useDatabase } from "@/hooks/use-database";
+import { ModeToggle } from "@/components/mode-toggle";
+import { NotificationsDropdown } from "@/components/dashboard/notifications-dropdown";
+import {
+  LayoutDashboard,
+  Receipt,
+  Wallet,
+  LogOut,
+  Sparkles,
+  Settings,
+} from "lucide-react";
+import { Logo } from "@/components/logo";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -16,10 +23,10 @@ export function Navbar() {
   if (!profile) return null;
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/transactions', label: 'Transactions', icon: Receipt },
-    { href: '/dashboard/budgets', label: 'Budgets', icon: Wallet },
-    { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/transactions", label: "Transactions", icon: Receipt },
+    { href: "/dashboard/budgets", label: "Budgets", icon: Wallet },
+    { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
   return (
@@ -27,9 +34,11 @@ export function Navbar() {
       {/* Top Header */}
       <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
-
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg sm:text-xl tracking-tight">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 font-bold text-lg sm:text-xl tracking-tight"
+          >
             <Logo size={28} />
             <span className="bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-transparent">
               ScalePay
@@ -47,8 +56,8 @@ export function Navbar() {
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -79,17 +88,21 @@ export function Navbar() {
               {profile.avatar_url ? (
                 <img
                   src={profile.avatar_url}
-                  alt={profile.full_name || 'User'}
+                  alt={profile.full_name || "User"}
                   className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-border"
                 />
               ) : (
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
-                  {profile.full_name?.charAt(0).toUpperCase() || 'U'}
+                  {profile.full_name?.charAt(0).toUpperCase() || "U"}
                 </div>
               )}
               <div className="hidden lg:flex flex-col text-left">
-                <span className="text-sm font-semibold leading-none">{profile.full_name}</span>
-                <span className="text-xs text-muted-foreground">{profile.email}</span>
+                <span className="text-sm font-semibold leading-none">
+                  {profile.full_name}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {profile.email}
+                </span>
               </div>
               <button
                 onClick={() => logOut()}
@@ -116,11 +129,11 @@ export function Navbar() {
               href={item.href}
               className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-[10px] font-semibold transition-colors ${
                 isActive
-                  ? 'text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : ''}`} />
+              <Icon className={`h-5 w-5 ${isActive ? "text-primary" : ""}`} />
               <span>{item.label}</span>
             </Link>
           );

@@ -22,6 +22,7 @@ import {
 import { TransactionForm } from "@/components/forms/transaction-form";
 import { BudgetForm } from "@/components/forms/budget-form";
 import { formatCurrency, formatMonth, formatDate } from "@/utils/formatters";
+import { AIInsightsModal } from "@/components/dashboard/ai-insights-modal";
 import { CATEGORY_PRESETS } from "@/utils/constants";
 import {
   TrendingUp,
@@ -166,6 +167,40 @@ export default function DashboardPage() {
   // Recent transactions list
   const recentTxs = activeMonthTxs.slice(0, 5);
 
+  // Calculate Previous Month Data for AI
+  const prevDate = new Date(`${activeMonth}-01T12:00:00Z`);
+  prevDate.setUTCMonth(prevDate.getUTCMonth() - 1);
+  const prevMonthKey = prevDate.toISOString().substring(0, 7);
+
+  const prevMonthTxs = transactions.filter(
+    (t) => t.date.substring(0, 7) === prevMonthKey,
+  );
+  
+  const prevTotalIncome = prevMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  const prevTotalExpenses = prevMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  
+  const prevCategoryExpenses = prevMonthTxs
+    .filter((t) => t.type === "expense")
+    .reduce((acc, t) => {
+        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        return acc;
+    }, {} as Record<string, number>);
+
+  const currentMonthData = {
+    totalIncome,
+    totalExpenses,
+    netSavings,
+    categoryExpenses,
+    budgetProgress: budgetProgress.map(b => ({ category: b.category, spent: b.spent, limit: b.limit_amount })),
+  };
+
+  const previousMonthData = {
+    totalIncome: prevTotalIncome,
+    totalExpenses: prevTotalExpenses,
+    netSavings: prevTotalIncome - prevTotalExpenses,
+    categoryExpenses: prevCategoryExpenses,
+  };
+
   return (
     <div className="space-y-6">
       {/* Header section with Month Switcher & Actions */}
@@ -201,6 +236,12 @@ export default function DashboardPage() {
               <ChevronRight size={16} />
             </button>
           </div>
+
+          <AIInsightsModal
+            currentMonthData={currentMonthData}
+            previousMonthData={previousMonthData}
+            currency={currency}
+          />
 
           {/* Quick Transaction Creation Action */}
           <Dialog open={isAddTxOpen} onOpenChange={setIsAddTxOpen}>
