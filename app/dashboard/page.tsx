@@ -50,8 +50,35 @@ const DashboardCharts = dynamic(
   },
 );
 
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      {/* Stats Summary Cards Skeleton */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <div className="h-[100px] bg-muted/20 rounded-xl col-span-2 sm:col-span-1" />
+        <div className="h-[100px] bg-muted/20 rounded-xl" />
+        <div className="h-[100px] bg-muted/20 rounded-xl" />
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Charts Skeleton */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="h-[400px] bg-muted/20 rounded-xl" />
+          <div className="h-[300px] bg-muted/20 rounded-xl" />
+        </div>
+        
+        {/* Side Panel Skeleton */}
+        <div className="space-y-6">
+          <div className="h-[350px] bg-muted/20 rounded-xl" />
+          <div className="h-[250px] bg-muted/20 rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
-  const { profile, transactions, budgets, activeMonth, setActiveMonth } =
+  const { profile, transactions, budgets, activeMonth, setActiveMonth, isSyncing } =
     useDatabase();
   const currency = profile?.currency || "GHS";
 
@@ -267,7 +294,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats Summary Cards */}
+      {isSyncing ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          {/* Stats Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {/* Net Savings Card */}
         <Card className="border-border bg-card shadow-sm col-span-2 sm:col-span-1">
@@ -545,6 +576,8 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 }

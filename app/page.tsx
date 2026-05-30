@@ -131,9 +131,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-slate-400 text-base sm:text-lg max-w-lg mx-auto lg:mx-0">
-            A beautiful, developer-friendly financial dashboard. Log
-            transactions, structure budgets, and visualize trends with
-            interactive charts.
+            A beautiful, user friendly financial dashboard. Log transactions,
+            structure budgets, and visualize trends with interactive charts.
           </p>
 
           {/* Core features grid */}
