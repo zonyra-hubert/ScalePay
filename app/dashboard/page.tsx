@@ -64,24 +64,25 @@ export default function DashboardPage() {
 
   // Month navigation controllers
   const handlePrevMonth = () => {
-    const [year, month] = activeMonth.split('-').map(Number);
-    const date = new Date(year, month - 2, 1);
+    const date = new Date(`${activeMonth}-01T12:00:00Z`);
+    date.setUTCMonth(date.getUTCMonth() - 1);
     setActiveMonth(date.toISOString().substring(0, 7));
   };
 
   const handleNextMonth = () => {
-    const [year, month] = activeMonth.split('-').map(Number);
-    const date = new Date(year, month, 1);
+    const date = new Date(`${activeMonth}-01T12:00:00Z`);
+    date.setUTCMonth(date.getUTCMonth() + 1);
     setActiveMonth(date.toISOString().substring(0, 7));
   };
 
-  // Generate monthly trend data for Area Chart (last 6 months)
+  // Generate monthly trend data for Area Chart (last 6 months relative to activeMonth)
   const monthlyChartData = Array.from({ length: 6 })
     .map((_, i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
+      // Use activeMonth as the base so the graph shifts when the user navigates months
+      const date = new Date(`${activeMonth}-01T12:00:00Z`);
+      date.setUTCMonth(date.getUTCMonth() - i);
       const monthKey = date.toISOString().substring(0, 7);
-      const monthLabel = date.toLocaleString('en-US', { month: 'short' });
+      const monthLabel = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
 
       const monthTxs = transactions.filter((t) => t.date.substring(0, 7) === monthKey);
       const inc = monthTxs.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
