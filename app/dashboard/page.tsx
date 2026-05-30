@@ -133,7 +133,7 @@ export default function DashboardPage() {
       return {
         name: category,
         value: parseFloat(amount.toFixed(2)),
-        color: preset?.color || "#FF0000",
+        color: preset?.color || "#64748b",
       };
     },
   );
