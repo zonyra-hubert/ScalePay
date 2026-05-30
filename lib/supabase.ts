@@ -14,5 +14,11 @@ if (typeof window !== "undefined") {
 }
 
 export const supabase = hasSupabase
-  ? createClient(supabaseUrl!, supabaseAnonKey!)
+  ? createClient(supabaseUrl!, supabaseAnonKey!, {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        },
+      },
+    })
   : null;

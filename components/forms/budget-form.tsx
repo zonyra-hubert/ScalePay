@@ -129,18 +129,11 @@ export function BudgetForm({ category = '', limitAmount, month, onSuccess }: Bud
       {/* Budget Month Picker */}
       <div className="space-y-1.5">
         <Label htmlFor="budget-month">Budget Month</Label>
-        <Controller
-          name="month"
-          control={control}
-          render={({ field }) => (
-            <DatePicker
-              value={field.value ? `${field.value}-01` : selectedMonthDate}
-              onChange={(isoDate) => field.onChange(isoDate.substring(0, 7))}
-              placeholder="Pick a month"
-              monthOnly
-              className={errors.month ? 'border-destructive focus-visible:ring-destructive' : ''}
-            />
-          )}
+        <Input
+          id="budget-month"
+          type="month"
+          {...register('month')}
+          className={errors.month ? 'border-destructive' : ''}
         />
         <p className="text-xs text-muted-foreground">
           This budget lasts for one calendar month only.

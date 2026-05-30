@@ -323,6 +323,9 @@ class LocalStorageProviderImpl implements DatabaseProvider {
   }
 
   async signOut(): Promise<void> {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('force_demo_mode');
+    }
     // Just simulated
     return new Promise((resolve) => setTimeout(resolve, 500));
   }
@@ -696,7 +699,12 @@ class SupabaseProviderImpl implements DatabaseProvider {
 // EXPORTS & FACTORY
 // ----------------------------------------------------
 export const getDatabaseProvider = (): DatabaseProvider => {
-  if (hasSupabase) {
+  let forceDemo = false;
+  if (typeof window !== 'undefined') {
+    forceDemo = localStorage.getItem('force_demo_mode') === 'true';
+  }
+
+  if (hasSupabase && !forceDemo) {
     return new SupabaseProviderImpl();
   }
   return new LocalStorageProviderImpl();

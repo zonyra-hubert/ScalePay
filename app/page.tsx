@@ -99,9 +99,10 @@ export default function LandingPage() {
   };
 
   const handleDemoMode = () => {
-    // Demo mode handles itself because db-provider.ts automatically mocks a profile
-    // if hasSupabase is false. If hasSupabase is true, we still let them proceed by triggering redirect.
-    router.push("/dashboard");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("force_demo_mode", "true");
+      window.location.href = "/dashboard";
+    }
   };
 
   return (
@@ -115,7 +116,9 @@ export default function LandingPage() {
         <div className="flex-1 flex flex-col space-y-6 max-w-xl text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold w-fit mx-auto lg:mx-0">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Fintech Personal Wealth Management</span>
+            <span className="text-primary">
+              Fintech Personal Wealth Management
+            </span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
@@ -181,7 +184,7 @@ export default function LandingPage() {
               <div className="flex justify-center mb-2">
                 <Logo size={44} />
               </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
                 Welcome to ScalePay
               </CardTitle>
               <CardDescription>
@@ -194,9 +197,9 @@ export default function LandingPage() {
             <CardContent className="space-y-4 pb-6">
               {hasSupabase ? (
                 <>
-                  <form onSubmit={handleAuth} className="space-y-3">
+                  <form onSubmit={handleAuth} className="space-y-3 ">
                     {isSignUp && (
-                      <div className="space-y-1">
+                      <div className="space-y-1 text-primary">
                         <Label htmlFor="auth-name">Full Name</Label>
                         <Input
                           id="auth-name"
@@ -208,8 +211,7 @@ export default function LandingPage() {
                         />
                       </div>
                     )}
-
-                    <div className="space-y-1">
+                    <div className="space-y-1 text-primary ">
                       <Label htmlFor="auth-email">Email Address</Label>
                       <Input
                         id="auth-email"
