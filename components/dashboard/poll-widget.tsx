@@ -10,7 +10,7 @@ export default function PollWidget() {
     if (!ref.current) return;
 
     const widget = JamPolls.embed(
-      "XAO620UddYeGmhbBoM5cYkF643N3VsvW",
+      "dviFtAItfilV5fTbkt8BMb8c5CFPg5Bh",
       ref.current,
       {
         theme: "auto",
