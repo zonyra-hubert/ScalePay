@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
@@ -78,7 +79,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans h-full antialiased bg-background text-foreground selection:bg-secondary selection:text-foreground`}
       >
-        <Providers>{children}</Providers>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Providers>{children}</Providers>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

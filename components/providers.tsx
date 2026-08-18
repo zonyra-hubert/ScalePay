@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useEffect, useState } from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import React, { createContext, useEffect, useState, useRef } from "react";
 import { getDatabaseProvider } from "@/lib/db-provider";
 import { Profile, Transaction, Budget } from "@/types";
 import { Toaster, toast } from "sonner";
@@ -55,14 +54,12 @@ const getDb = () => {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
-      <NotificationProvider>
-        <DatabaseProviderWrapper>
-          {children}
-          <Toaster position="top-right" richColors closeButton />
-        </DatabaseProviderWrapper>
-      </NotificationProvider>
-    </NextThemesProvider>
+    <NotificationProvider>
+      <DatabaseProviderWrapper>
+        {children}
+        <Toaster position="top-right" richColors closeButton />
+      </DatabaseProviderWrapper>
+    </NotificationProvider>
   );
 }
 
