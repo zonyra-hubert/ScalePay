@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DatePicker } from '@/components/ui/date-picker';
 import { CATEGORY_PRESETS } from '@/utils/constants';
 import { Loader2 } from 'lucide-react';
 
@@ -31,7 +30,6 @@ export function BudgetForm({ category = '', limitAmount, month, onSuccess }: Bud
   const { profile, updateBudget } = useDatabase();
   const currency = profile?.currency || 'GHS';
   const [saveError, setSaveError] = useState<string | null>(null);
-  const selectedMonthDate = month ? `${month}-01` : undefined;
 
   const {
     register,

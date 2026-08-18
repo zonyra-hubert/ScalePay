@@ -567,10 +567,13 @@ class SupabaseProviderImpl implements DatabaseProvider {
 
   async getTransactions(): Promise<Transaction[]> {
     if (!supabase) return [];
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
     
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
+      .eq('user_id', user.id)
       .order('date', { ascending: false })
       .order('created_at', { ascending: false });
       
@@ -586,10 +589,15 @@ class SupabaseProviderImpl implements DatabaseProvider {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    const safeData = { ...data } as Record<string, unknown>;
+    delete safeData.id;
+    delete safeData.user_id;
+    delete safeData.created_at;
+
     const { data: inserted, error } = await supabase
       .from('transactions')
       .insert([{
-        ...data,
+        ...safeData,
         user_id: user.id
       }])
       .select()
@@ -601,11 +609,19 @@ class SupabaseProviderImpl implements DatabaseProvider {
 
   async updateTransaction(id: string, data: Partial<Omit<Transaction, 'id' | 'user_id' | 'created_at'>>): Promise<Transaction> {
     if (!supabase) throw new Error('Supabase client is not configured');
-    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const safeData = { ...data } as Record<string, unknown>;
+    delete safeData.id;
+    delete safeData.user_id;
+    delete safeData.created_at;
+
     const { data: updated, error } = await supabase
       .from('transactions')
-      .update(data)
+      .update(safeData)
       .eq('id', id)
+      .eq('user_id', user.id)
       .select()
       .single();
 
@@ -615,11 +631,14 @@ class SupabaseProviderImpl implements DatabaseProvider {
 
   async deleteTransaction(id: string): Promise<void> {
     if (!supabase) throw new Error('Supabase client is not configured');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
 
     const { error } = await supabase
       .from('transactions')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id);
 
     if (error) throw error;
   }
@@ -630,16 +649,12 @@ class SupabaseProviderImpl implements DatabaseProvider {
     if (!user) return [];
 
     const monthKey = normalizeMonthKey(month);
-    const nextMonthDate = new Date(`${monthKey}-01T00:00:00Z`);
-    nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-    const nextMonthKey = nextMonthDate.toISOString().substring(0, 7);
 
     const { data, error } = await supabase
       .from('budgets')
       .select('*')
       .eq('user_id', user.id)
-      .gte('month', monthKey)
-      .lt('month', nextMonthKey);
+      .eq('month', monthKey);
 
     if (error) {
       console.error('Error fetching budgets:', error);
@@ -684,12 +699,7 @@ class SupabaseProviderImpl implements DatabaseProvider {
       .delete()
       .eq('user_id', user.id)
       .eq('category', category)
-      .gte('month', monthKey)
-      .lt('month', (() => {
-        const nextMonthDate = new Date(`${monthKey}-01T00:00:00Z`);
-        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-        return nextMonthDate.toISOString().substring(0, 7);
-      })());
+      .eq('month', monthKey);
 
     if (error) throw error;
   }

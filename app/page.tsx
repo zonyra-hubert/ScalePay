@@ -14,15 +14,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Sparkles,
   ArrowRight,
-  Activity,
   TrendingUp,
-  AlertTriangle,
+  Wallet,
+  ShieldCheck,
   Loader2,
+  Lock,
+  Mail,
+  User,
 } from "lucide-react";
 import { supabase, hasSupabase } from "@/lib/supabase";
 import { Logo } from "@/components/logo";
+import { toast } from "sonner";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -43,10 +47,10 @@ export default function LandingPage() {
 
   if (loading || profile) {
     return (
-      <div className="min-h-screen bg-[#090d16] flex flex-col items-center justify-center text-slate-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="text-sm text-slate-400">Loading ScalePay...</p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-foreground">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-7 h-7 rounded-full border-2 border-foreground border-t-transparent animate-spin" />
+          <p className="text-xs font-medium text-muted-foreground">Loading ScalePay...</p>
         </div>
       </div>
     );
@@ -55,9 +59,7 @@ export default function LandingPage() {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasSupabase || !supabase) {
-      setAuthError(
-        "Supabase environment variables are missing. Please use Demo Mode.",
-      );
+      setAuthError("Supabase environment variables are missing. Please use Demo Mode.");
       return;
     }
 
@@ -76,9 +78,7 @@ export default function LandingPage() {
           },
         });
         if (error) throw error;
-        alert(
-          "Registration successful! Check your email or sign in (if confirmation is off).",
-        );
+        toast.success("Account created successfully. Check your email or sign in.");
         setIsSignUp(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -86,15 +86,10 @@ export default function LandingPage() {
           password,
         });
         if (error) throw error;
-        
-        // Push manually to ensure immediate navigation
         router.push("/dashboard");
       }
     } catch (err) {
-      const errorMsg =
-        err instanceof Error
-          ? err.message
-          : "An authentication error occurred.";
+      const errorMsg = err instanceof Error ? err.message : "Authentication error occurred.";
       setAuthError(errorMsg);
     } finally {
       setAuthLoading(false);
@@ -109,125 +104,131 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-primary/10 to-transparent pointer-events-none z-0" />
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between animate-page-enter">
+      {/* Top Header */}
+      <header className="border-b border-border bg-background">
+        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 font-semibold text-base tracking-tight">
+            <Logo size={24} />
+            <span>ScalePay</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+          </div>
+        </div>
+      </header>
 
-      {/* Main layout container */}
-      <main className="container mx-auto px-4 py-8 lg:py-16 flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 z-10">
-        {/* Left Column: Branding and Selling Points */}
-        <div className="flex-1 flex flex-col space-y-6 max-w-xl text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold w-fit mx-auto lg:mx-0">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span className="text-primary">
-              Fintech Personal Wealth Management
+      {/* Main Container */}
+      <main className="container mx-auto px-4 py-12 lg:py-20 flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16 max-w-6xl">
+        {/* Left Column: Product Information */}
+        <div className="flex-1 space-y-6 max-w-xl text-left animate-stagger-1">
+          <div className="space-y-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Personal Wealth & Accounting
             </span>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground leading-[1.15]">
+              Structured personal finance tracking.
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
+              Maintain a real-time transaction ledger, formulate monthly category budgets, and inspect cash flow trends with structured analytics.
+            </p>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
-            Take control of your{" "}
-            <span className="bg-gradient-to-r from-primary via-indigo-400 to-emerald-400 bg-clip-text text-transparent">
-              expenses
-            </span>{" "}
-            in real-time.
-          </h1>
-
-          <p className="text-slate-400 text-base sm:text-lg max-w-lg mx-auto lg:mx-0">
-            A beautiful, user friendly financial dashboard. Log transactions,
-            structure budgets, and visualize trends with interactive charts.
-          </p>
-
-          {/* Core features grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-left">
-            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm flex items-start gap-3">
-              <div className="bg-emerald-500/10 p-2 rounded-lg text-emerald-400">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm">Interactive Analytics</h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Visualize income vs expense trends dynamically.
-                </p>
-              </div>
+          {/* Three Feature Highlights */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="p-3.5 rounded-lg border border-border bg-card transition-colors duration-150">
+              <TrendingUp className="h-4 w-4 text-foreground mb-2" />
+              <h2 className="font-semibold text-xs text-foreground">Cash Flow Trends</h2>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug font-normal">
+                Track income vs. expense performance over time.
+              </p>
             </div>
 
-            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm flex items-start gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg text-primary">
-                <Activity className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm">Budget Allocation</h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Define monthly categories and check alert thresholds.
-                </p>
-              </div>
+            <div className="p-3.5 rounded-lg border border-border bg-card transition-colors duration-150">
+              <Wallet className="h-4 w-4 text-foreground mb-2" />
+              <h2 className="font-semibold text-xs text-foreground">Budget Targets</h2>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug font-normal">
+                Set category spending limits with threshold alerts.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-lg border border-border bg-card transition-colors duration-150">
+              <ShieldCheck className="h-4 w-4 text-foreground mb-2" />
+              <h2 className="font-semibold text-xs text-foreground">Data Isolation</h2>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug font-normal">
+                Protected by PostgreSQL Row-Level Security.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Auth Card */}
-        <div className="w-full max-w-md">
-          <Card className="border-slate-800 bg-slate-950/70 backdrop-blur-md shadow-2xl relative overflow-hidden">
-            {/* Supabase Status Banner */}
-            {!hasSupabase && (
-              <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 flex items-start gap-2.5">
-                <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                <div className="text-xs text-amber-200">
-                  <p className="font-semibold">Offline Demo Mode Active</p>
-                  <p className="mt-0.5 text-amber-300/80">
-                    No database configured. Your data will be stored securely on
-                    your device.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <CardHeader className="text-center pt-6">
-              <div className="flex justify-center mb-2">
-                <Logo size={44} />
-              </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
-                Welcome to ScalePay
+        {/* Right Column: Authentication Card */}
+        <div className="w-full max-w-md animate-stagger-2">
+          <Card className="border-border bg-card shadow-xs">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold">
+                {isSignUp ? "Create an account" : "Sign in to ScalePay"}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs font-normal">
                 {hasSupabase
-                  ? "Sign in to access your cloud vault"
-                  : "Launch Demo Mode to explore instantly"}
+                  ? isSignUp
+                    ? "Enter your details to register a new vault"
+                    : "Access your financial records and dashboard"
+                  : "Database is unconfigured. Launch Demo Mode to test immediately."}
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-4 pb-6">
-              {hasSupabase ? (
-                <>
-                  <form onSubmit={handleAuth} className="space-y-3 ">
-                    {isSignUp && (
-                      <div className="space-y-1 text-primary">
-                        <Label htmlFor="auth-name">Full Name</Label>
+            <CardContent className="space-y-4">
+              {hasSupabase && (
+                <form onSubmit={handleAuth} className="space-y-3">
+                  {isSignUp && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="auth-name" className="text-xs font-medium">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="auth-name"
-                          placeholder="Your Name"
+                          placeholder="Alex Mercer"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           required
-                          className="bg-slate-900 border-slate-800 text-slate-100"
+                          className="pl-9 text-sm"
                         />
                       </div>
-                    )}
-                    <div className="space-y-1 text-primary ">
-                      <Label htmlFor="auth-email">Email Address</Label>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="auth-email" className="text-xs font-medium">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="auth-email"
                         type="email"
-                        placeholder="you@example.com"
+                        placeholder="you@domain.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="bg-slate-900 border-slate-800 text-slate-100"
+                        className="pl-9 text-sm"
                       />
                     </div>
+                  </div>
 
-                    <div className="space-y-1">
-                      <Label htmlFor="auth-password">Password</Label>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="auth-password" className="text-xs font-medium">Password</Label>
+                      {!isSignUp && (
+                        <button
+                          type="button"
+                          onClick={() => router.push("/reset-password")}
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline cursor-pointer transition-colors duration-150"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="auth-password"
                         type="password"
@@ -235,77 +236,74 @@ export default function LandingPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="bg-slate-900 border-slate-800 text-slate-100"
+                        className="pl-9 text-sm"
                         showPasswordVisibilityToggle
                       />
                     </div>
+                  </div>
 
-                    {authError && (
-                      <p className="text-xs text-rose-500 bg-rose-500/10 p-2 rounded-md border border-rose-500/20">
-                        {authError}
-                      </p>
+                  {authError && (
+                    <div className="p-2.5 rounded-md text-xs text-destructive bg-destructive/10 border border-destructive/20 animate-in fade-in-0 duration-150">
+                      {authError}
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    className="w-full font-medium mt-1"
+                    disabled={authLoading}
+                  >
+                    {authLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Authenticating...
+                      </>
+                    ) : isSignUp ? (
+                      "Create Account"
+                    ) : (
+                      "Sign In"
                     )}
+                  </Button>
 
-                    <Button
-                      type="submit"
-                      className="w-full font-semibold"
-                      disabled={authLoading}
-                    >
-                      {authLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Verifying...
-                        </>
-                      ) : isSignUp ? (
-                        "Create Account"
-                      ) : (
-                        "Sign In"
-                      )}
-                    </Button>
-                  </form>
-
-                  <div className="text-center text-xs text-slate-500">
+                  <div className="text-center pt-1">
                     <button
-                      onClick={() => setIsSignUp(!isSignUp)}
-                      className="hover:underline text-primary hover:text-indigo-400 cursor-pointer"
+                      type="button"
+                      onClick={() => {
+                        setIsSignUp(!isSignUp);
+                        setAuthError(null);
+                      }}
+                      className="text-xs text-muted-foreground hover:text-foreground hover:underline cursor-pointer transition-colors duration-150"
                     >
                       {isSignUp
                         ? "Already have an account? Sign In"
-                        : "Don't have an account? Sign Up"}
+                        : "Don't have an account? Create one"}
                     </button>
                   </div>
+                </form>
+              )}
 
-                  <div className="relative my-4 flex items-center justify-center">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-800" />
-                    </div>
-                    <span className="relative bg-slate-950 px-3 text-xs text-slate-500 uppercase">
-                      Or
-                    </span>
-                  </div>
-                </>
-              ) : null}
-
-              {/* Demo Mode Trigger Button */}
-              <Button
-                variant={hasSupabase ? "outline" : "default"}
-                className="w-full flex items-center justify-center gap-2 group font-semibold border-slate-800 hover:bg-slate-900/50"
-                onClick={handleDemoMode}
-              >
-                <span>Launch Offline Demo</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
+              {/* Demo Mode Button */}
+              <div className="pt-2 border-t border-border space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 text-xs font-medium"
+                  onClick={handleDemoMode}
+                >
+                  <span>Explore Offline Demo Mode</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+                <p className="text-xs text-muted-foreground text-center font-normal">
+                  Stores records locally in browser storage without connecting to Supabase.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
       </main>
 
-      {/* Footer footer */}
-      <footer className="py-6 border-t border-slate-800 text-center text-xs text-slate-500 z-10 bg-slate-950/20">
-        <p>
-          © 2026 ScalePay Personal Finance. Secure local-first encryption &
-          Supabase DB.
-        </p>
+      {/* Footer */}
+      <footer className="py-5 border-t border-border text-center text-xs text-muted-foreground font-normal">
+        <p>© 2026 ScalePay. All financial records strictly isolated by database policy.</p>
       </footer>
     </div>
   );

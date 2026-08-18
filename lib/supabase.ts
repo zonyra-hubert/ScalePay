@@ -5,16 +5,13 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env
 
 export const hasSupabase = !!(supabaseUrl && supabaseAnonKey);
 
-if (typeof window !== "undefined") {
-  console.log("ScalePay Database Connection Status:", {
-    hasSupabase,
-    hasUrl: !!supabaseUrl,
-    hasAnonKey: !!supabaseAnonKey,
-  });
-}
-
 export const supabase = hasSupabase
   ? createClient(supabaseUrl!, supabaseAnonKey!, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
       global: {
         fetch: (url, options) => {
           return fetch(url, { ...options, cache: 'no-store' });

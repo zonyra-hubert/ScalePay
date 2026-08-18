@@ -16,18 +16,15 @@ export default function PollWidget() {
         theme: "auto",
         layout: "auto",
         vars: {
-          "--jp-primary": "#FFA946",
-          "--jp-radius": "22px",
-          "--jp-option-radius": "16px",
-          "max-width": "460px",
+          "--jp-primary": "var(--foreground)",
+          "--jp-radius": "8px",
+          "--jp-option-radius": "6px",
+          "max-width": "100%",
         },
         onVote: (event) => {
           if ("optionId" in event) {
-            console.log("voted", event.optionId);
             return;
           }
-
-          console.log("voted", event.optionIds);
         },
       },
     );
@@ -37,5 +34,5 @@ export default function PollWidget() {
     };
   }, []);
 
-  return <div ref={ref} className="w-full" />;
+  return <div ref={ref} className="w-full text-xs" />;
 }

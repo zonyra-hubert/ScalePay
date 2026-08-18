@@ -68,13 +68,13 @@ export function NotificationsDropdown() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle2 className="h-[18px] w-[18px] text-emerald-500 shrink-0" />;
+        return <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />;
       case 'warning':
-        return <AlertTriangle className="h-[18px] w-[18px] text-amber-500 shrink-0" />;
+        return <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />;
       case 'error':
-        return <AlertTriangle className="h-[18px] w-[18px] text-rose-500 shrink-0" />;
+        return <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />;
       default:
-        return <Info className="h-[18px] w-[18px] text-blue-500 shrink-0" />;
+        return <Info className="h-4 w-4 text-muted-foreground shrink-0" />;
     }
   };
 
@@ -83,34 +83,34 @@ export function NotificationsDropdown() {
       {/* Bell Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer flex items-center justify-center"
+        className="relative p-2 rounded-md border border-border bg-background text-foreground hover:bg-secondary transition-colors cursor-pointer flex items-center justify-center"
         aria-label="View notifications"
         id="notification-bell-btn"
       >
-        <Bell className={`h-[18px] w-[18px] ${unreadCount > 0 ? 'animate-pulse text-primary' : ''}`} />
+        <Bell className="h-4 w-4 text-muted-foreground" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-primary" />
+          <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5 rounded-full bg-foreground" />
         )}
       </button>
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="fixed left-4 right-4 top-16 w-auto sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-96 rounded-xl border border-border bg-card text-foreground shadow-xl z-50 overflow-hidden transition-all">
+        <div className="fixed left-4 right-4 top-16 w-auto sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-88 rounded-lg border border-border bg-card text-foreground shadow-md z-50 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-3.5 border-b border-border/50 bg-muted/20">
+          <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-border/60 bg-muted/20">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">Notifications</span>
+              <span className="font-semibold text-xs text-foreground">Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">
-                  {unreadCount} new
+                <span className="text-[10px] bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded font-medium border border-border/60">
+                  {unreadCount} unread
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="p-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
+                  className="p-1 text-[11px] text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors flex items-center gap-1 cursor-pointer font-medium"
                   title="Mark all as read"
                 >
                   <Check className="h-3 w-3" />
@@ -120,26 +120,26 @@ export function NotificationsDropdown() {
               {notifications.length > 0 && (
                 <button
                   onClick={clearAll}
-                  className="p-1 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
+                  className="p-1 text-[11px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors flex items-center gap-1 cursor-pointer font-medium"
                   title="Clear all"
                 >
                   <Trash2 className="h-3 w-3" />
-                  <span className="hidden sm:inline">Clear all</span>
+                  <span className="hidden sm:inline">Clear</span>
                 </button>
               )}
             </div>
           </div>
 
           {/* List Content */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-border/30">
+          <div className="max-h-[360px] overflow-y-auto divide-y divide-border/40">
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <div className="p-3 bg-muted/30 rounded-full mb-3 text-muted-foreground">
-                  <BellOff className="h-6 w-6" />
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <div className="p-2 bg-muted rounded-full mb-2 text-muted-foreground">
+                  <BellOff className="h-4 w-4" />
                 </div>
-                <h4 className="font-semibold text-sm mb-1">All caught up!</h4>
-                <p className="text-xs text-muted-foreground max-w-[200px]">
-                  You have no notifications. Warnings and confirmations will show here.
+                <h4 className="font-semibold text-xs text-foreground mb-0.5">No notifications</h4>
+                <p className="text-[11px] text-muted-foreground max-w-[200px]">
+                  Alerts and budget threshold updates will appear here.
                 </p>
               </div>
             ) : (
@@ -147,19 +147,16 @@ export function NotificationsDropdown() {
                 <div
                   key={item.id}
                   onClick={() => !item.read && markAsRead(item.id)}
-                  className={`group relative flex items-start gap-3 p-3.5 transition-colors cursor-pointer hover:bg-muted/30 ${
+                  className={`group relative flex items-start gap-2.5 p-3 transition-colors cursor-pointer hover:bg-muted/20 ${
                     !item.read ? 'bg-muted/10 font-medium' : ''
                   }`}
                 >
-                  {/* Status Indicator Bar */}
                   {!item.read && (
-                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary" />
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-foreground" />
                   )}
 
-                  {/* Icon */}
                   <div className="mt-0.5 shrink-0">{getIcon(item.type)}</div>
 
-                  {/* Details */}
                   <div className="flex-1 min-w-0 space-y-0.5">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-semibold text-foreground truncate">{item.title}</p>
@@ -173,14 +170,13 @@ export function NotificationsDropdown() {
                     </p>
                   </div>
 
-                  {/* Check action button on hover */}
                   {!item.read && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         markAsRead(item.id);
                       }}
-                      className="hidden group-hover:flex absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-background hover:bg-accent border border-border text-foreground hover:text-primary rounded-md shadow-sm transition-all duration-150 cursor-pointer"
+                      className="hidden group-hover:flex absolute right-2.5 top-1/2 -translate-y-1/2 p-1 bg-card hover:bg-secondary border border-border text-foreground rounded transition-colors cursor-pointer"
                       title="Mark as read"
                     >
                       <Check className="h-3 w-3" />

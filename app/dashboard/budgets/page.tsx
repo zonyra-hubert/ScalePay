@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useDatabase } from '@/hooks/use-database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -24,8 +23,8 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
-  CheckCircle,
+  AlertCircle,
+  Check,
 } from 'lucide-react';
 
 export default function BudgetsPage() {
@@ -76,7 +75,6 @@ export default function BudgetsPage() {
 
   // Categories already budgeted
   const budgetedCategories = budgets.map((b) => b.category);
-  // Categories available for new budgets (excluding Salary / Income type categories)
   const availableCategories = CATEGORY_PRESETS.filter(
     (cat) => cat.id !== 'salary' && !budgetedCategories.includes(cat.label)
   );
@@ -90,54 +88,55 @@ export default function BudgetsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-page-enter">
       {/* Header section with month controllers */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1 animate-stagger-1">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Budgets</h1>
-          <p className="text-muted-foreground text-sm">Allocate monthly spending targets for categories.</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Category Budgets</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-normal">
+            Set and monitor expenditure thresholds for {formatMonth(activeMonth)}.
+          </p>
         </div>
 
-        {/* Month Navigation */}
-        <div className="flex items-center gap-1.5 self-start sm:self-auto">
-          <div className="flex items-center bg-card border border-border rounded-lg p-1.5 shadow-sm">
+        {/* Month Navigation & Add Budget */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center bg-card border border-border rounded-md p-0.5">
             <button
               onClick={handlePrevMonth}
-              className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors duration-150 cursor-pointer"
               aria-label="Previous month"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={15} />
             </button>
-            <span className="text-xs font-semibold px-3 min-w-[100px] text-center select-none flex items-center gap-1.5 justify-center">
-              <Calendar size={13} className="text-primary" />
+            <span className="text-xs font-semibold px-2.5 min-w-[90px] text-center select-none flex items-center gap-1.5 justify-center text-foreground">
+              <Calendar size={12} className="text-muted-foreground" />
               {formatMonth(activeMonth)}
             </span>
             <button
               onClick={handleNextMonth}
-              className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors duration-150 cursor-pointer"
               aria-label="Next month"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={15} />
             </button>
           </div>
 
-          {/* New Budget Button (disabled if no category is left) */}
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button
                 size="sm"
                 disabled={availableCategories.length === 0}
-                className="flex items-center gap-1 shadow-sm font-semibold"
+                className="h-8 gap-1.5 text-xs font-medium"
               >
-                <Plus size={16} />
+                <Plus size={14} />
                 <span>Create Budget</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
               <DialogHeader>
-                <DialogTitle>Create Budget</DialogTitle>
-                <DialogDescription>
-                  Allocate a monthly limit limit for a spending category.
+                <DialogTitle className="text-base font-semibold">Create Category Budget</DialogTitle>
+                <DialogDescription className="text-xs">
+                  Set a monthly limit for a spending category.
                 </DialogDescription>
               </DialogHeader>
               <BudgetForm month={activeMonth} onSuccess={() => setIsAddOpen(false)} />
@@ -148,44 +147,41 @@ export default function BudgetsPage() {
 
       {/* Main Grid View */}
       {budgetList.length === 0 ? (
-        <Card className="border-border bg-card shadow-sm py-12">
-          <CardContent className="flex flex-col items-center justify-center text-center space-y-3">
-            <div className="bg-primary/10 p-3 rounded-full text-primary">
-              <Wallet className="h-8 w-8" />
+        <Card className="border-border bg-card py-12 animate-stagger-2">
+          <CardContent className="flex flex-col items-center justify-center text-center space-y-2">
+            <div className="p-2.5 bg-muted rounded-full text-muted-foreground mb-1">
+              <Wallet className="h-6 w-6" />
             </div>
-            <div>
-              <h3 className="font-semibold text-lg">No Budgets Formulated</h3>
-              <p className="text-sm text-muted-foreground max-w-sm mt-1">
-                You haven&apos;t defined any budget limits for {formatMonth(activeMonth)} yet. Create one above to get started.
-              </p>
-            </div>
+            <h3 className="font-semibold text-sm text-foreground">No Budgets Configured</h3>
+            <p className="text-xs text-muted-foreground max-w-sm font-normal">
+              You have not configured any monthly budget targets for {formatMonth(activeMonth)}. Create one above to monitor your spending limits.
+            </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-stagger-2">
           {budgetList.map((item) => {
             const preset = CATEGORY_PRESETS.find((c) => c.label === item.category);
             const isExceeded = item.spent > item.limit_amount;
             const isWarning = item.percentage >= 85 && !isExceeded;
 
             return (
-              <Card key={item.id} className="border-border bg-card shadow-sm overflow-hidden flex flex-col justify-between">
-                <CardHeader className="pb-3 border-b border-border/40">
+              <Card key={item.id} className="border-border bg-card flex flex-col justify-between transition-colors duration-150">
+                <CardHeader className="pb-3 pt-4 px-4 border-b border-border/60">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className="w-3.5 h-3.5 rounded-full"
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: preset?.color || '#94a3b8' }}
                       />
-                      <CardTitle className="text-base font-bold">{item.category}</CardTitle>
+                      <CardTitle className="text-sm font-semibold">{item.category}</CardTitle>
                     </div>
 
-                    {/* Action buttons */}
                     <div className="flex items-center gap-1">
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground cursor-pointer"
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground cursor-pointer"
                         onClick={() =>
                           setEditingBudget({
                             category: item.category,
@@ -194,32 +190,31 @@ export default function BudgetsPage() {
                         }
                         title="Adjust limit"
                       >
-                        <Edit2 size={14} />
+                        <Edit2 size={13} />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
                         onClick={() => handleRemoveBudget(item.category)}
                         title="Delete budget"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="pt-4 space-y-4 flex-grow flex flex-col justify-between">
-                  {/* Values */}
+                <CardContent className="p-4 space-y-3.5 flex-grow flex flex-col justify-between">
                   <div className="flex justify-between items-baseline">
                     <div className="space-y-0.5">
-                      <span className="text-2xl font-extrabold tracking-tight">
+                      <span className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground tabular-nums">
                         {formatCurrency(item.spent, currency)}
                       </span>
-                      <span className="text-xs text-muted-foreground ml-1.5">spent</span>
+                      <span className="text-xs text-muted-foreground ml-1.5 font-normal">spent</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-sm font-semibold text-muted-foreground">
+                      <span className="text-xs font-medium text-muted-foreground tabular-nums">
                         Limit: {formatCurrency(item.limit_amount, currency)}
                       </span>
                     </div>
@@ -227,33 +222,32 @@ export default function BudgetsPage() {
 
                   {/* Progress bar */}
                   <div className="space-y-1.5">
-                    <Progress
-                      value={Math.min(item.percentage, 100)}
-                      className={
-                        isExceeded
-                          ? 'bg-destructive/10 border-destructive/20'
-                          : isWarning
-                          ? 'bg-amber-500/10 border-amber-500/20'
-                          : 'bg-primary/10'
-                      }
-                      // Note: shading uses standard theme coloring, but let's make sure class matches
-                      style={{
-                        backgroundColor: isExceeded ? '#ef4444' : isWarning ? '#f59e0b' : undefined,
-                      }}
-                    />
-                    <div className="flex justify-between text-xs font-semibold text-muted-foreground">
-                      <span>{item.percentage.toFixed(0)}% Utilized</span>
+                    <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-200 ease-out ${
+                          isExceeded
+                            ? 'bg-destructive'
+                            : isWarning
+                            ? 'bg-amber-500'
+                            : 'bg-foreground'
+                        }`}
+                        style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                      />
+                    </div>
+
+                    <div className="flex justify-between text-xs font-normal text-muted-foreground">
+                      <span>{item.percentage.toFixed(0)}% utilized</span>
                       {isExceeded ? (
-                        <span className="text-destructive flex items-center gap-1">
-                          <AlertTriangle size={12} /> Exceeded by {formatCurrency(item.spent - item.limit_amount, currency)}
+                        <span className="text-destructive flex items-center gap-1 font-medium">
+                          <AlertCircle size={11} /> Exceeded by {formatCurrency(item.spent - item.limit_amount, currency)}
                         </span>
                       ) : isWarning ? (
-                        <span className="text-amber-500 flex items-center gap-1">
-                          <AlertTriangle size={12} /> Approaching Limit ({formatCurrency(item.remaining, currency)} left)
+                        <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+                          <AlertCircle size={11} /> {formatCurrency(item.remaining, currency)} remaining
                         </span>
                       ) : (
-                        <span className="text-emerald-500 flex items-center gap-1">
-                          <CheckCircle size={12} /> On track ({formatCurrency(item.remaining, currency)} left)
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Check size={11} className="text-emerald-600 dark:text-emerald-400" /> {formatCurrency(item.remaining, currency)} remaining
                         </span>
                       )}
                     </div>
@@ -272,9 +266,9 @@ export default function BudgetsPage() {
       >
         <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
           <DialogHeader>
-            <DialogTitle>Adjust Budget Limit</DialogTitle>
-            <DialogDescription>
-              Modify the spending threshold limit for this category.
+            <DialogTitle className="text-base font-semibold">Adjust Budget Limit</DialogTitle>
+            <DialogDescription className="text-xs">
+              Modify the monthly limit for this category.
             </DialogDescription>
           </DialogHeader>
           {editingBudget && (

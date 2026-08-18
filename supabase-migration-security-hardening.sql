@@ -1,46 +1,48 @@
 -- ==============================================================================
--- ScalePay - Production-Hardened Supabase Database Schema
--- Standard: OWASP ASVS v4.0 / PostgreSQL Least Privilege / Zero-Trust RLS
+-- ScalePay - Non-Destructive Security Migration
+-- Apply this script to existing Supabase databases to harden security
+-- without dropping tables or losing user data.
 -- ==============================================================================
 
--- 0. EXTENSIONS & SCHEMA PREPARATION
+begin;
+
+-- 1. Ensure pgcrypto extension
 create extension if not exists "pgcrypto";
 
--- Revoke default public function execution privileges (defense-in-depth)
+-- 2. Revoke default public execution privileges
 revoke execute on all functions in schema public from public;
 
--- ==============================================================================
--- 1. PROFILES TABLE
--- ==============================================================================
-create table if not exists public.profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  email text not null,
-  full_name text,
-  avatar_url text,
-  currency text default 'GHS' not null,
-  theme text default 'dark' not null,
-  email_alerts boolean default true not null,
-  monthly_summary boolean default true not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+-- ------------------------------------------------------------------------------
+-- 3. PROFILES TABLE HARDENING
+-- ------------------------------------------------------------------------------
+alter table if exists public.profiles enable row level security;
 
-  -- Financial & Data Integrity Constraints
-  constraint profiles_theme_check check (theme in ('light', 'dark', 'system')),
-  constraint profiles_currency_check check (length(currency) between 2 and 10),
-  constraint profiles_full_name_check check (full_name is null or (length(trim(full_name)) > 0 and length(full_name) <= 100)),
-  constraint profiles_avatar_url_check check (avatar_url is null or (length(avatar_url) <= 2048 and avatar_url ~* '^https?://.*'))
-);
+-- Add constraints conditionally if they don't already exist
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'profiles_theme_check') then
+    alter table public.profiles add constraint profiles_theme_check check (theme in ('light', 'dark', 'system'));
+  end if;
 
--- Enable RLS for profiles
-alter table public.profiles enable row level security;
+  if not exists (select 1 from pg_constraint where conname = 'profiles_currency_check') then
+    alter table public.profiles add constraint profiles_currency_check check (length(currency) between 2 and 10);
+  end if;
 
--- Clean existing policies to guarantee idempotent application
+  if not exists (select 1 from pg_constraint where conname = 'profiles_full_name_check') then
+    alter table public.profiles add constraint profiles_full_name_check check (full_name is null or (length(trim(full_name)) > 0 and length(full_name) <= 100));
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'profiles_avatar_url_check') then
+    alter table public.profiles add constraint profiles_avatar_url_check check (avatar_url is null or (length(avatar_url) <= 2048 and avatar_url ~* '^https?://.*'));
+  end if;
+end $$;
+
+-- Drop and recreate profiles RLS policies with full WITH CHECK constraints
 drop policy if exists "Users can view own profile" on public.profiles;
 drop policy if exists "Users can insert own profile" on public.profiles;
 drop policy if exists "Users can update own profile" on public.profiles;
 drop policy if exists "Users can delete own profile" on public.profiles;
 
--- RLS Policies for profiles
 create policy "Users can view own profile"
   on public.profiles
   for select
@@ -66,39 +68,48 @@ create policy "Users can delete own profile"
   to authenticated
   using (auth.uid() = id);
 
--- ==============================================================================
--- 2. TRANSACTIONS TABLE
--- ==============================================================================
-create table if not exists public.transactions (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid default auth.uid() references public.profiles(id) on delete cascade not null,
-  title text not null,
-  amount numeric(12,2) not null,
-  date date not null,
-  category text not null,
-  type text not null,
-  description text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+-- ------------------------------------------------------------------------------
+-- 4. TRANSACTIONS TABLE HARDENING
+-- ------------------------------------------------------------------------------
+alter table if exists public.transactions enable row level security;
 
-  -- Financial & Ledger Constraints
-  constraint transactions_type_check check (type in ('income', 'expense')),
-  constraint transactions_amount_check check (amount > 0 and amount <= 999999999.99),
-  constraint transactions_title_check check (length(trim(title)) > 0 and length(title) <= 255),
-  constraint transactions_category_check check (length(trim(category)) > 0 and length(category) <= 100),
-  constraint transactions_description_check check (description is null or length(description) <= 1000),
-  constraint transactions_date_check check (date >= '1970-01-01' and date <= (current_date + interval '1 year'))
-);
+-- Set default user_id to auth.uid()
+alter table public.transactions alter column user_id set default auth.uid();
 
--- Enable RLS for transactions
-alter table public.transactions enable row level security;
+-- Add constraints conditionally
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'transactions_type_check') then
+    alter table public.transactions add constraint transactions_type_check check (type in ('income', 'expense'));
+  end if;
 
--- Clean existing policies
+  if not exists (select 1 from pg_constraint where conname = 'transactions_amount_check') then
+    alter table public.transactions add constraint transactions_amount_check check (amount > 0 and amount <= 999999999.99);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'transactions_title_check') then
+    alter table public.transactions add constraint transactions_title_check check (length(trim(title)) > 0 and length(title) <= 255);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'transactions_category_check') then
+    alter table public.transactions add constraint transactions_category_check check (length(trim(category)) > 0 and length(category) <= 100);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'transactions_description_check') then
+    alter table public.transactions add constraint transactions_description_check check (description is null or length(description) <= 1000);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'transactions_date_check') then
+    alter table public.transactions add constraint transactions_date_check check (date >= '1970-01-01' and date <= (current_date + interval '1 year'));
+  end if;
+end $$;
+
+-- Drop and recreate transactions RLS policies
 drop policy if exists "Users can view own transactions" on public.transactions;
 drop policy if exists "Users can insert own transactions" on public.transactions;
 drop policy if exists "Users can update own transactions" on public.transactions;
 drop policy if exists "Users can delete own transactions" on public.transactions;
 
--- RLS Policies for transactions (Enforcing strict identity matching on USING and WITH CHECK)
 create policy "Users can view own transactions"
   on public.transactions
   for select
@@ -124,38 +135,40 @@ create policy "Users can delete own transactions"
   to authenticated
   using (auth.uid() = user_id);
 
--- Performance & Isolation Indexes (Prevents table scans and DoS on large datasets)
+-- Performance and DoS mitigation indexes
 create index if not exists idx_transactions_user_id_date on public.transactions (user_id, date desc, created_at desc);
 create index if not exists idx_transactions_user_id_category on public.transactions (user_id, category);
 
--- ==============================================================================
--- 3. BUDGETS TABLE
--- ==============================================================================
-create table if not exists public.budgets (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid default auth.uid() references public.profiles(id) on delete cascade not null,
-  category text not null,
-  limit_amount numeric(12,2) not null,
-  month text not null, -- format YYYY-MM
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  
-  -- Constraints
-  constraint budgets_user_category_month_key unique (user_id, category, month),
-  constraint budgets_limit_amount_check check (limit_amount >= 0 and limit_amount <= 999999999.99),
-  constraint budgets_category_check check (length(trim(category)) > 0 and length(category) <= 100),
-  constraint budgets_month_format_check check (month ~ '^\d{4}-(0[1-9]|1[0-2])$')
-);
+-- ------------------------------------------------------------------------------
+-- 5. BUDGETS TABLE HARDENING
+-- ------------------------------------------------------------------------------
+alter table if exists public.budgets enable row level security;
 
--- Enable RLS for budgets
-alter table public.budgets enable row level security;
+-- Set default user_id to auth.uid()
+alter table public.budgets alter column user_id set default auth.uid();
 
--- Clean existing policies
+-- Add constraints conditionally
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'budgets_limit_amount_check') then
+    alter table public.budgets add constraint budgets_limit_amount_check check (limit_amount >= 0 and limit_amount <= 999999999.99);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'budgets_category_check') then
+    alter table public.budgets add constraint budgets_category_check check (length(trim(category)) > 0 and length(category) <= 100);
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'budgets_month_format_check') then
+    alter table public.budgets add constraint budgets_month_format_check check (month ~ '^\d{4}-(0[1-9]|1[0-2])$');
+  end if;
+end $$;
+
+-- Drop and recreate budgets RLS policies
 drop policy if exists "Users can view own budgets" on public.budgets;
 drop policy if exists "Users can insert own budgets" on public.budgets;
 drop policy if exists "Users can update own budgets" on public.budgets;
 drop policy if exists "Users can delete own budgets" on public.budgets;
 
--- RLS Policies for budgets
 create policy "Users can view own budgets"
   on public.budgets
   for select
@@ -181,14 +194,13 @@ create policy "Users can delete own budgets"
   to authenticated
   using (auth.uid() = user_id);
 
--- Performance Index
 create index if not exists idx_budgets_user_id_month on public.budgets (user_id, month);
 
--- ==============================================================================
--- 4. AUTOMATED AUDIT & PROFILE PROVISIONING (SECURITY DEFINER)
--- ==============================================================================
+-- ------------------------------------------------------------------------------
+-- 6. SECURITY DEFINER FUNCTIONS & TRIGGERS
+-- ------------------------------------------------------------------------------
 
--- Function 1: Automated updated_at maintenance
+-- Trigger 1: Timestamp updater with empty search_path
 create or replace function public.handle_updated_at()
 returns trigger
 language plpgsql
@@ -206,7 +218,7 @@ create trigger on_profiles_updated
   before update on public.profiles
   for each row execute function public.handle_updated_at();
 
--- Function 2: Automated secure profile creation on auth.users insert
+-- Trigger 2: Automated profile creation on auth.users with empty search_path
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -258,34 +270,30 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- Grant permissions strictly to required roles
 grant execute on function public.handle_updated_at() to authenticated, service_role;
 grant execute on function public.handle_new_user() to service_role;
 
--- ==============================================================================
--- 5. STORAGE BUCKET SECURITY POLICIES (If Storage is enabled)
--- ==============================================================================
-
--- Ensure avatars bucket exists and is configured
+-- ------------------------------------------------------------------------------
+-- 7. STORAGE BUCKET SECURITY
+-- ------------------------------------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'avatars',
   'avatars',
   true,
-  5242880, -- 5MB limit
+  5242880,
   array['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
 )
 on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
--- Ensure financial_documents bucket exists (Private by default)
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'financial_documents',
   'financial_documents',
   false,
-  10485760, -- 10MB limit
+  10485760,
   array['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'text/csv']
 )
 on conflict (id) do update set
@@ -293,7 +301,6 @@ on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
--- Storage RLS: Avatars bucket policies
 drop policy if exists "Avatars public read" on storage.objects;
 create policy "Avatars public read"
   on storage.objects for select
@@ -331,7 +338,6 @@ create policy "Users can delete own avatar"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Storage RLS: Financial Documents bucket policies (Strict user isolation)
 drop policy if exists "Users can view own financial documents" on storage.objects;
 create policy "Users can view own financial documents"
   on storage.objects for select
@@ -371,3 +377,5 @@ create policy "Users can delete own financial documents"
     bucket_id = 'financial_documents'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+commit;

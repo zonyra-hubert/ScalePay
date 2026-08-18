@@ -22,9 +22,9 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-foreground">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="text-sm text-muted-foreground">Syncing data session...</p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-7 h-7 rounded-full border-2 border-foreground border-t-transparent animate-spin" />
+          <p className="text-xs font-medium text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );

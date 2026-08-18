@@ -63,38 +63,38 @@ export function ForgotPasswordForm({ onBackToSignInClick }: ForgotPasswordFormPr
   return (
     <div className="space-y-4">
       {success ? (
-        <div className="space-y-4 py-4 text-center">
+        <div className="space-y-3 py-3 text-center">
           <div className="flex justify-center">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-              <CheckCircle2 className="h-6 w-6" />
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <CheckCircle2 className="h-5 w-5" />
             </div>
           </div>
           <div>
-            <h3 className="font-semibold text-slate-200 text-sm">Check your inbox</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-              We've emailed you instructions to set up a new password. If you don't receive it shortly, check your spam folder.
+            <h3 className="font-semibold text-foreground text-sm">Check your inbox</h3>
+            <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
+              We&apos;ve sent recovery instructions to your email address.
             </p>
           </div>
-          <Button variant="outline" className="w-full font-semibold border-slate-800" onClick={onBackToSignInClick}>
+          <Button variant="outline" size="sm" className="w-full font-medium" onClick={onBackToSignInClick}>
             Return to Sign In
           </Button>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="forgot-email">Email Address</Label>
+            <Label htmlFor="forgot-email" className="text-xs font-medium">Email Address</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="forgot-email"
                 type="email"
-                placeholder="you@example.com"
-                className="bg-slate-900 border-slate-800 text-slate-100 pl-9"
+                placeholder="you@domain.com"
+                className="pl-9 text-sm"
                 {...register('email')}
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-rose-500 flex items-center gap-1 mt-1">
+              <p className="text-xs text-destructive flex items-center gap-1 mt-1">
                 <AlertCircle className="h-3 w-3 shrink-0" />
                 {errors.email.message}
               </p>
@@ -102,13 +102,13 @@ export function ForgotPasswordForm({ onBackToSignInClick }: ForgotPasswordFormPr
           </div>
 
           {authError && (
-            <p className="text-xs text-rose-500 bg-rose-500/10 p-2.5 rounded-md border border-rose-500/20 flex items-start gap-1.5">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="p-2.5 rounded-md text-xs text-destructive bg-destructive/10 border border-destructive/20 flex items-start gap-1.5">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{authError}</span>
-            </p>
+            </div>
           )}
 
-          <Button type="submit" className="w-full font-semibold mt-2" disabled={loading}>
+          <Button type="submit" className="w-full font-medium mt-1" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -119,11 +119,11 @@ export function ForgotPasswordForm({ onBackToSignInClick }: ForgotPasswordFormPr
             )}
           </Button>
 
-          <div className="text-center text-xs text-slate-500 pt-1">
+          <div className="text-center text-xs text-muted-foreground pt-1">
             <button
               type="button"
               onClick={onBackToSignInClick}
-              className="hover:underline text-primary hover:text-indigo-400 cursor-pointer"
+              className="hover:underline hover:text-foreground cursor-pointer"
             >
               Back to Sign In
             </button>

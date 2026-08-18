@@ -70,19 +70,19 @@ export function SignInForm({
     <div className="space-y-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="signin-email">Email Address</Label>
+          <Label htmlFor="signin-email" className="text-xs font-medium">Email Address</Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               id="signin-email"
               type="email"
-              placeholder="you@example.com"
-              className="bg-slate-900 border-slate-800 text-slate-100 pl-9"
+              placeholder="you@domain.com"
+              className="pl-9 text-sm"
               {...register("email")}
             />
           </div>
           {errors.email && (
-            <p className="text-xs text-rose-500 flex items-center gap-1 mt-1">
+            <p className="text-xs text-destructive flex items-center gap-1 mt-1">
               <AlertCircle className="h-3 w-3 shrink-0" />
               {errors.email.message}
             </p>
@@ -91,28 +91,28 @@ export function SignInForm({
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="signin-password">Password</Label>
+            <Label htmlFor="signin-password" className="text-xs font-medium">Password</Label>
             <button
               type="button"
               onClick={onForgotPasswordClick}
-              className="text-xs text-primary hover:underline hover:text-indigo-400 cursor-pointer"
+              className="text-xs text-muted-foreground hover:text-foreground hover:underline cursor-pointer"
             >
               Forgot password?
             </button>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+            <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               id="signin-password"
               type="password"
               placeholder="••••••••"
-              className="bg-slate-900 border-slate-800 text-slate-100 pl-9"
+              className="pl-9 text-sm"
               {...register("password")}
               showPasswordVisibilityToggle
             />
           </div>
           {errors.password && (
-            <p className="text-xs text-rose-500 flex items-center gap-1 mt-1">
+            <p className="text-xs text-destructive flex items-center gap-1 mt-1">
               <AlertCircle className="h-3 w-3 shrink-0" />
               {errors.password.message}
             </p>
@@ -120,21 +120,21 @@ export function SignInForm({
         </div>
 
         {authError && (
-          <p className="text-xs text-rose-500 bg-rose-500/10 p-2.5 rounded-md border border-rose-500/20 flex items-start gap-1.5">
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          <div className="p-2.5 rounded-md text-xs text-destructive bg-destructive/10 border border-destructive/20 flex items-start gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <span>{authError}</span>
-          </p>
+          </div>
         )}
 
         <Button
           type="submit"
-          className="w-full font-semibold mt-2"
+          className="w-full font-medium mt-1"
           disabled={loading}
         >
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Verifying...
+              Authenticating...
             </>
           ) : (
             "Sign In"
@@ -142,12 +142,12 @@ export function SignInForm({
         </Button>
       </form>
 
-      <div className="text-center text-xs text-slate-500 pt-1">
+      <div className="text-center text-xs text-muted-foreground pt-1">
         <button
           onClick={onSignUpClick}
-          className="hover:underline text-primary hover:text-indigo-400 cursor-pointer"
+          className="hover:underline hover:text-foreground cursor-pointer"
         >
-          Don't have an account? Sign Up
+          Don&apos;t have an account? Sign Up
         </button>
       </div>
     </div>

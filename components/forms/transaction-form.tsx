@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transactionSchema, TransactionFormValues } from '@/schemas/transaction-schema';
 import { useDatabase } from '@/hooks/use-database';
@@ -38,7 +38,6 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
     handleSubmit,
     control,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<TransactionFormValues>({
@@ -60,7 +59,11 @@ export function TransactionForm({ transaction, onSuccess, defaultType = 'expense
     },
   });
 
-  const transactionType = watch('type');
+  const transactionType = useWatch({
+    control,
+    name: 'type',
+    defaultValue: transaction ? transaction.type : defaultType,
+  });
 
   // Load values when editing
   useEffect(() => {

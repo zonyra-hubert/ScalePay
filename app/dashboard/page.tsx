@@ -26,14 +26,14 @@ import { AIInsightsModal } from "@/components/dashboard/ai-insights-modal";
 import PollWidget from "@/components/dashboard/poll-widget";
 import { CATEGORY_PRESETS } from "@/utils/constants";
 import {
-  TrendingUp,
-  TrendingDown,
   Plus,
   Calendar,
   ChevronLeft,
   ChevronRight,
   AlertCircle,
-  PiggyBank,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,7 +46,7 @@ const DashboardCharts = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[350px] w-full bg-muted/20 animate-pulse rounded-xl" />
+      <div className="h-[340px] w-full bg-muted/30 animate-pulse rounded-lg" />
     ),
   },
 );
@@ -54,24 +54,20 @@ const DashboardCharts = dynamic(
 function DashboardSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      {/* Stats Summary Cards Skeleton */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-        <div className="h-[100px] bg-muted/20 rounded-xl col-span-2 sm:col-span-1" />
-        <div className="h-[100px] bg-muted/20 rounded-xl" />
-        <div className="h-[100px] bg-muted/20 rounded-xl" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="h-24 bg-muted/30 rounded-lg" />
+        <div className="h-24 bg-muted/30 rounded-lg" />
+        <div className="h-24 bg-muted/30 rounded-lg" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Charts Skeleton */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="h-[400px] bg-muted/20 rounded-xl" />
-          <div className="h-[300px] bg-muted/20 rounded-xl" />
+          <div className="h-80 bg-muted/30 rounded-lg" />
+          <div className="h-64 bg-muted/30 rounded-lg" />
         </div>
-
-        {/* Side Panel Skeleton */}
         <div className="space-y-6">
-          <div className="h-[350px] bg-muted/20 rounded-xl" />
-          <div className="h-[250px] bg-muted/20 rounded-xl" />
+          <div className="h-80 bg-muted/30 rounded-lg" />
+          <div className="h-48 bg-muted/30 rounded-lg" />
         </div>
       </div>
     </div>
@@ -124,7 +120,6 @@ export default function DashboardPage() {
   // Generate monthly trend data for Area Chart (last 6 months relative to activeMonth)
   const monthlyChartData = Array.from({ length: 6 })
     .map((_, i) => {
-      // Use activeMonth as the base so the graph shifts when the user navigates months
       const date = new Date(`${activeMonth}-01T12:00:00Z`);
       date.setUTCMonth(date.getUTCMonth() - i);
       const monthKey = date.toISOString().substring(0, 7);
@@ -183,11 +178,11 @@ export default function DashboardPage() {
 
     if (spent > b.limit_amount) {
       budgetAlerts.push(
-        `You have exceeded your ${b.category} budget limit by ${formatCurrency(spent - b.limit_amount, currency)}!`,
+        `${b.category} budget exceeded by ${formatCurrency(spent - b.limit_amount, currency)}.`,
       );
     } else if (percentage >= 85) {
       budgetAlerts.push(
-        `Warning: You have used ${percentage.toFixed(0)}% of your ${b.category} budget.`,
+        `${b.category} budget at ${percentage.toFixed(0)}% of limit.`,
       );
     }
 
@@ -247,38 +242,38 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-page-enter">
       {/* Header section with Month Switcher & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1 animate-stagger-1">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Overview
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+            Financial Overview
           </h1>
-          <p className="text-muted-foreground text-sm">
-            Monitor your income, expenses, and budget limits.
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-normal">
+            Summary of cash flow, category budgets, and recent activity.
           </p>
         </div>
 
-        {/* Month controller */}
+        {/* Month controller & Actions */}
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <div className="flex items-center bg-card border border-border rounded-lg p-1.5 shadow-sm">
+          <div className="flex items-center bg-card border border-border rounded-md p-0.5">
             <button
               onClick={handlePrevMonth}
-              className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors duration-150 cursor-pointer"
               aria-label="Previous month"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={15} />
             </button>
-            <span className="text-xs font-semibold px-3 min-w-[100px] text-center select-none flex items-center gap-1.5 justify-center">
-              <Calendar size={13} className="text-primary" />
+            <span className="text-xs font-semibold px-2.5 min-w-[90px] text-center select-none flex items-center gap-1.5 justify-center text-foreground">
+              <Calendar size={12} className="text-muted-foreground" />
               {formatMonth(activeMonth)}
             </span>
             <button
               onClick={handleNextMonth}
-              className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors duration-150 cursor-pointer"
               aria-label="Next month"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={15} />
             </button>
           </div>
 
@@ -293,17 +288,17 @@ export default function DashboardPage() {
             <DialogTrigger asChild>
               <Button
                 size="sm"
-                className="flex items-center gap-1 shadow-sm font-semibold"
+                className="h-8 gap-1.5 text-xs font-medium"
               >
-                <Plus size={16} />
+                <Plus size={14} />
                 <span>Log Transaction</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
               <DialogHeader>
-                <DialogTitle>Log Transaction</DialogTitle>
-                <DialogDescription>
-                  Enter transaction details to update your balance.
+                <DialogTitle className="text-base font-semibold">Log Transaction</DialogTitle>
+                <DialogDescription className="text-xs">
+                  Record an incoming revenue or expense payment.
                 </DialogDescription>
               </DialogHeader>
               <TransactionForm onSuccess={() => setIsAddTxOpen(false)} />
@@ -316,308 +311,296 @@ export default function DashboardPage() {
         <DashboardSkeleton />
       ) : (
         <>
-          {/* Stats Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-            {/* Net Savings Card */}
-            <Card className="border-border bg-card shadow-sm col-span-2 sm:col-span-1">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Net Savings
-                </CardTitle>
-                <div
-                  className={`p-1.5 rounded-lg ${netSavings >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
-                >
-                  <PiggyBank size={16} />
-                </div>
+          {/* Three Main Financial Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-stagger-2">
+            {/* Total Income Card */}
+            <Card className="border-border bg-card transition-colors duration-150">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Total Income
+                </span>
+                <TrendingUp size={15} className="text-emerald-600 dark:text-emerald-400" />
               </CardHeader>
               <CardContent className="px-4 pb-4">
-                <div className="text-xl sm:text-2xl font-bold tracking-tight">
-                  {formatCurrency(netSavings, currency)}
+                <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground tabular-nums">
+                  {formatCurrency(totalIncome, currency)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {formatMonth(activeMonth)}
+                <p className="text-xs text-muted-foreground mt-1 font-normal">
+                  Recorded in {formatMonth(activeMonth)}
                 </p>
               </CardContent>
             </Card>
 
-            {/* Total Income Card */}
-            <Card className="border-border bg-card shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Income
-                </CardTitle>
-                <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
-                  <TrendingUp size={16} />
-                </div>
+            {/* Total Expenses Card */}
+            <Card className="border-border bg-card transition-colors duration-150">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Total Expenses
+                </span>
+                <TrendingDown size={15} className="text-rose-600 dark:text-rose-400" />
               </CardHeader>
               <CardContent className="px-4 pb-4">
-                <div className="text-xl sm:text-2xl font-bold tracking-tight">
-                  {formatCurrency(totalIncome, currency)}
+                <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground tabular-nums">
+                  {formatCurrency(totalExpenses, currency)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">This month</p>
+                <p className="text-xs text-muted-foreground mt-1 font-normal">
+                  Recorded in {formatMonth(activeMonth)}
+                </p>
               </CardContent>
             </Card>
 
-            {/* Total Expenses Card */}
-            <Card className="border-border bg-card shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Expenses
-                </CardTitle>
-                <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500">
-                  <TrendingDown size={16} />
-                </div>
+            {/* Net Savings Card */}
+            <Card className="border-border bg-card transition-colors duration-150">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Net Savings
+                </span>
+                <Wallet size={15} className="text-muted-foreground" />
               </CardHeader>
               <CardContent className="px-4 pb-4">
-                <div className="text-xl sm:text-2xl font-bold tracking-tight">
-                  {formatCurrency(totalExpenses, currency)}
+                <div
+                  className={`text-2xl sm:text-3xl font-semibold tracking-tight tabular-nums ${
+                    netSavings >= 0 ? "text-foreground" : "text-destructive"
+                  }`}
+                >
+                  {formatCurrency(netSavings, currency)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">This month</p>
+                <p className="text-xs text-muted-foreground mt-1 font-normal">
+                  Net balance for period
+                </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Budget Warnings Panel */}
+          {/* Budget Warnings Alert */}
           {budgetAlerts.length > 0 && (
-            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 flex flex-col gap-2 shadow-sm">
-              <div className="flex items-center gap-2 text-destructive font-semibold text-sm">
-                <AlertCircle className="h-4.5 w-4.5 shrink-0" />
-                <span>Budget Limit Alerts ({budgetAlerts.length})</span>
+            <div className="rounded-md border border-amber-500/20 bg-amber-500/5 p-3 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-300 animate-stagger-2">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+              <div className="flex-1">
+                <span className="font-semibold block mb-0.5">Budget Threshold Alerts</span>
+                <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground font-normal">
+                  {budgetAlerts.map((alert, i) => (
+                    <li key={i}>{alert}</li>
+                  ))}
+                </ul>
               </div>
-              <ul className="list-disc list-inside space-y-1 text-xs text-destructive-foreground/90 pl-1">
-                {budgetAlerts.map((alert, i) => (
-                  <li key={i}>{alert}</li>
-                ))}
-              </ul>
             </div>
           )}
 
-          {/* Main Content Layout: Charts & side panel */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            {/* Analytics Charts Component (Area and Pie) */}
-            <DashboardCharts
-              monthlyData={monthlyChartData}
-              categoryData={categoryChartData}
-              activeMonthLabel={formatMonth(activeMonth)}
-            />
+          {/* Main 2-Column Content Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-stagger-3">
+            {/* Left Column (2/3): Analytics Charts & Recent Transactions */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Analytics Charts Component */}
+              <DashboardCharts
+                monthlyData={monthlyChartData}
+                categoryData={categoryChartData}
+                activeMonthLabel={formatMonth(activeMonth)}
+              />
 
-            <Card className="border-border bg-card shadow-sm">
-              <CardHeader className="pb-3">
-                <div>
-                  <CardTitle className="text-base sm:text-lg">
-                    Community Poll
-                  </CardTitle>
-                  <CardDescription>Quick feedback from users</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="px-3 pb-4">
-                <PollWidget />
-              </CardContent>
-            </Card>
-
-            {/* Budgets Tracker Card (Side Panel) */}
-            <Card className="border-border bg-card shadow-sm">
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-base sm:text-lg">
-                    Monthly Budgets
-                  </CardTitle>
-                  <CardDescription>Limit spent tracking</CardDescription>
-                </div>
-                <Dialog
-                  open={isSetBudgetOpen}
-                  onOpenChange={setIsSetBudgetOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 px-2.5 font-medium border-border"
-                    >
-                      <Plus size={14} className="mr-1" /> Set Budget
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
-                    <DialogHeader>
-                      <DialogTitle>Set Budget Limit</DialogTitle>
-                      <DialogDescription>
-                        Set or update a monthly limit limit for a category.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <BudgetForm
-                      month={activeMonth}
-                      onSuccess={() => setIsSetBudgetOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {budgetProgress.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
-                    <p>No budgets set for this month.</p>
-                    <p className="text-slate-500">
-                      Configure category budgets to avoid overspending.
-                    </p>
+              {/* Recent Transactions Panel */}
+              <Card className="border-border bg-card">
+                <CardHeader className="flex flex-row items-center justify-between pb-3 px-4 pt-4 border-b border-border/60">
+                  <div>
+                    <CardTitle className="text-sm font-semibold">
+                      Recent Transactions
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Latest payments logged this month
+                    </CardDescription>
                   </div>
-                ) : (
-                  <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                    {budgetProgress.map((item) => {
-                      const isOver = item.spent > item.limit_amount;
-                      const isNear = item.percentage >= 85 && !isOver;
-
-                      return (
-                        <div key={item.id} className="space-y-1.5 text-xs">
-                          <div className="flex justify-between items-center font-medium">
-                            <span className="text-foreground">
-                              {item.category}
-                            </span>
-                            <span className="text-muted-foreground">
-                              <span
-                                className={`font-semibold ${isOver ? "text-destructive" : isNear ? "text-amber-500" : "text-foreground"}`}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs font-medium"
+                    asChild
+                  >
+                    <Link href="/dashboard/transactions">View All</Link>
+                  </Button>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {recentTxs.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-muted-foreground font-normal">
+                      No transactions recorded for {formatMonth(activeMonth)}.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left">
+                        <thead>
+                          <tr className="border-b border-border/60 bg-muted/20 text-muted-foreground font-medium">
+                            <th className="py-2.5 px-4">Title</th>
+                            <th className="py-2.5 px-4">Category</th>
+                            <th className="py-2.5 px-4">Date</th>
+                            <th className="py-2.5 px-4 text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/40">
+                          {recentTxs.map((tx) => (
+                            <tr
+                              key={tx.id}
+                              className="hover:bg-muted/20 transition-colors duration-150"
+                            >
+                              <td className="py-2.5 px-4 font-medium text-foreground max-w-[180px] truncate">
+                                {tx.title}
+                              </td>
+                              <td className="py-2.5 px-4 text-muted-foreground font-normal">
+                                {tx.category}
+                              </td>
+                              <td className="py-2.5 px-4 text-muted-foreground font-normal">
+                                {formatDate(tx.date)}
+                              </td>
+                              <td
+                                className={`py-2.5 px-4 text-right font-medium tabular-nums ${
+                                  tx.type === "income"
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-foreground"
+                                }`}
                               >
-                                {formatCurrency(item.spent, currency)}
-                              </span>{" "}
-                              / {formatCurrency(item.limit_amount, currency)}
-                            </span>
-                          </div>
+                                {tx.type === "income" ? "+" : "-"}
+                                {formatCurrency(tx.amount, currency)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
 
-                          {/* Budget Progress Bar */}
-                          <div className="relative">
-                            <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+            {/* Right Column (1/3): Category Budgets & Feedback */}
+            <div className="space-y-6">
+              {/* Budgets Tracker Card */}
+              <Card className="border-border bg-card">
+                <CardHeader className="pb-3 px-4 pt-4 flex flex-row items-center justify-between border-b border-border/60">
+                  <div>
+                    <CardTitle className="text-sm font-semibold">
+                      Monthly Budgets
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Spending targets for {formatMonth(activeMonth)}
+                    </CardDescription>
+                  </div>
+                  <Dialog
+                    open={isSetBudgetOpen}
+                    onOpenChange={setIsSetBudgetOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs font-medium"
+                      >
+                        <Plus size={13} className="mr-1" /> Budget
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md w-[calc(100%-2rem)] sm:w-full">
+                      <DialogHeader>
+                        <DialogTitle className="text-base font-semibold">Set Category Budget</DialogTitle>
+                        <DialogDescription className="text-xs">
+                          Configure a monthly expenditure limit.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <BudgetForm
+                        month={activeMonth}
+                        onSuccess={() => setIsSetBudgetOpen(false)}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                  {budgetProgress.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-muted-foreground space-y-1">
+                      <p className="font-medium">No budgets formulated</p>
+                      <p className="text-xs text-muted-foreground/80 font-normal">
+                        Set category targets to monitor utilization.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                      {budgetProgress.map((item) => {
+                        const isOver = item.spent > item.limit_amount;
+                        const isNear = item.percentage >= 85 && !isOver;
+
+                        return (
+                          <div key={item.id} className="space-y-1.5 text-xs">
+                            <div className="flex justify-between items-center font-medium">
+                              <span className="text-foreground">
+                                {item.category}
+                              </span>
+                              <span className="text-muted-foreground tabular-nums">
+                                <span
+                                  className={
+                                    isOver
+                                      ? "text-destructive font-semibold"
+                                      : isNear
+                                      ? "text-amber-600 dark:text-amber-400 font-semibold"
+                                      : "text-foreground font-semibold"
+                                  }
+                                >
+                                  {formatCurrency(item.spent, currency)}
+                                </span>{" "}
+                                / {formatCurrency(item.limit_amount, currency)}
+                              </span>
+                            </div>
+
+                            {/* Progress bar */}
+                            <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
                               <div
-                                className={`h-full transition-all duration-500 ${
+                                className={`h-full transition-all duration-200 ease-out ${
                                   isOver
                                     ? "bg-destructive"
                                     : isNear
-                                      ? "bg-amber-500"
-                                      : "bg-primary"
+                                    ? "bg-amber-500"
+                                    : "bg-foreground"
                                 }`}
                                 style={{
                                   width: `${Math.min(item.percentage, 100)}%`,
                                 }}
                               />
                             </div>
-                          </div>
 
-                          {/* Percent Tag */}
-                          <div className="flex justify-between text-[10px] text-muted-foreground">
-                            <span>{item.percentage.toFixed(0)}% spent</span>
-                            {isOver ? (
-                              <span className="text-destructive font-semibold">
-                                Exceeded
-                              </span>
-                            ) : isNear ? (
-                              <span className="text-amber-500 font-semibold">
-                                Approaching Limit
-                              </span>
-                            ) : (
-                              <span className="text-emerald-500 font-semibold">
-                                On Track
-                              </span>
-                            )}
+                            <div className="flex justify-between text-xs text-muted-foreground font-normal">
+                              <span>{item.percentage.toFixed(0)}% utilized</span>
+                              {isOver ? (
+                                <span className="text-destructive font-medium">
+                                  Exceeded
+                                </span>
+                              ) : isNear ? (
+                                <span className="text-amber-600 dark:text-amber-400 font-medium">
+                                  Warning (85%+)
+                                </span>
+                              ) : (
+                                <span>
+                                  {formatCurrency(Math.max(0, item.limit_amount - item.spent), currency)} left
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Community Feedback Card */}
+              <Card className="border-border bg-card">
+                <CardHeader className="pb-2 px-4 pt-4 border-b border-border/60">
+                  <CardTitle className="text-sm font-semibold">
+                    Product Poll
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Feedback for feature development
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-3">
+                  <PollWidget />
+                </CardContent>
+              </Card>
+            </div>
           </div>
-
-          {/* Recent Transactions List Panel */}
-          <Card className="border-border bg-card shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <div>
-                <CardTitle className="text-base sm:text-lg">
-                  Recent Transactions
-                </CardTitle>
-                <CardDescription>
-                  Last transactions logged this month
-                </CardDescription>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="font-semibold"
-                asChild
-              >
-                <Link href="/dashboard/transactions">View All</Link>
-              </Button>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              {recentTxs.length === 0 ? (
-                <div className="py-8 text-center text-xs text-muted-foreground">
-                  No transactions logged for this month yet.
-                </div>
-              ) : (
-                <>
-                  {/* Desktop: Table */}
-                  <div className="hidden sm:block overflow-x-auto">
-                    <table className="w-full text-xs text-left">
-                      <thead>
-                        <tr className="border-b border-border/80 text-muted-foreground pb-2 font-medium">
-                          <th className="py-2 pl-1">Title</th>
-                          <th className="py-2">Category</th>
-                          <th className="py-2">Date</th>
-                          <th className="py-2 text-right">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/40">
-                        {recentTxs.map((tx) => (
-                          <tr
-                            key={tx.id}
-                            className="hover:bg-muted/30 transition-colors"
-                          >
-                            <td className="py-3 pl-1 font-semibold text-foreground max-w-[150px] truncate">
-                              {tx.title}
-                            </td>
-                            <td className="py-3 text-muted-foreground">
-                              {tx.category}
-                            </td>
-                            <td className="py-3 text-muted-foreground">
-                              {formatDate(tx.date)}
-                            </td>
-                            <td
-                              className={`py-3 text-right font-bold ${tx.type === "income" ? "text-emerald-500" : "text-rose-500"}`}
-                            >
-                              {tx.type === "income" ? "+" : "-"}
-                              {formatCurrency(tx.amount, currency)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Mobile: Card List */}
-                  <div className="sm:hidden divide-y divide-border/40">
-                    {recentTxs.map((tx) => (
-                      <div
-                        key={tx.id}
-                        className="flex items-center justify-between py-3"
-                      >
-                        <div className="min-w-0">
-                          <p className="font-semibold text-sm text-foreground truncate max-w-[180px]">
-                            {tx.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {tx.category} · {formatDate(tx.date)}
-                          </p>
-                        </div>
-                        <span
-                          className={`text-sm font-bold ml-3 shrink-0 ${tx.type === "income" ? "text-emerald-500" : "text-rose-500"}`}
-                        >
-                          {tx.type === "income" ? "+" : "-"}
-                          {formatCurrency(tx.amount, currency)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
         </>
       )}
     </div>

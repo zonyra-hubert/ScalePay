@@ -36,22 +36,22 @@ interface DashboardChartsProps {
   activeMonthLabel: string;
 }
 
-// Custom tooltips declared outside of render to prevent recreation/performance warning
+// Clean, high-contrast tooltips for financial analytics
 const CustomTooltipArea = ({ active, payload, label, currency }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-popover border border-border p-3 rounded-lg shadow-xl text-xs space-y-1">
-        <p className="font-bold text-foreground mb-1">{label}</p>
+      <div className="bg-popover border border-border px-3 py-2 rounded-md shadow-xs text-xs space-y-1 animate-in fade-in-0 zoom-in-95 duration-100">
+        <p className="font-semibold text-foreground border-b border-border/60 pb-1 mb-1.5">{label}</p>
         {payload.map((entry: any) => (
           <div key={entry.name} className="flex items-center gap-4 justify-between">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
+            <span className="flex items-center gap-1.5 text-muted-foreground capitalize">
               <span
-                className="w-2.5 h-2.5 rounded-full"
+                className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
-              {entry.name === 'income' ? 'Income' : 'Expense'}
+              {entry.name}
             </span>
-            <span className="font-semibold text-foreground">
+            <span className="font-semibold text-foreground tabular-nums">
               {formatCurrency(entry.value, currency)}
             </span>
           </div>
@@ -66,15 +66,15 @@ const CustomTooltipPie = ({ active, payload, currency }: any) => {
   if (active && payload && payload.length) {
     const entry = payload[0];
     return (
-      <div className="bg-popover border border-border p-3 rounded-lg shadow-xl text-xs flex items-center gap-3">
+      <div className="bg-popover border border-border px-3 py-2 rounded-md shadow-xs text-xs flex items-center gap-3 animate-in fade-in-0 zoom-in-95 duration-100">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <span
-            className="w-2.5 h-2.5 rounded-full"
+            className="w-2 h-2 rounded-full"
             style={{ backgroundColor: entry.payload.color }}
           />
           {entry.name}
         </span>
-        <span className="font-bold text-foreground">
+        <span className="font-semibold text-foreground tabular-nums">
           {formatCurrency(entry.value, currency)}
         </span>
       </div>
@@ -90,23 +90,23 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
 
   return (
     <Card className="col-span-1 lg:col-span-2 border-border bg-card">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 gap-4">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 gap-3 border-b border-border/60">
         <div>
-          <CardTitle className="text-base sm:text-lg">Analytics Overview</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base font-semibold">Cash Flow Analysis</CardTitle>
+          <CardDescription className="text-xs mt-0.5">
             {activeTab === 'trends'
-              ? 'Multi-month income and expense trends'
-              : `Expense distribution for ${activeMonthLabel}`}
+              ? 'Multi-month income and expenditure trends'
+              : `Expense breakdown by category for ${activeMonthLabel}`}
           </CardDescription>
         </div>
 
         {/* Tab Toggle Switch */}
-        <div className="flex bg-muted p-0.5 rounded-lg border border-border/50 self-start sm:self-auto">
+        <div className="flex bg-muted p-0.5 rounded-md border border-border self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('trends')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
+            className={`px-2.5 py-1 text-xs font-medium rounded transition-[background-color,color] duration-150 cursor-pointer ${
               activeTab === 'trends'
-                ? 'bg-card text-foreground shadow-sm'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -114,48 +114,48 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
           </button>
           <button
             onClick={() => setActiveTab('categories')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
+            className={`px-2.5 py-1 text-xs font-medium rounded transition-[background-color,color] duration-150 cursor-pointer ${
               activeTab === 'categories'
-                ? 'bg-card text-foreground shadow-sm'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            Category breakdown
+            Category Distribution
           </button>
         </div>
       </CardHeader>
 
-      <CardContent className="h-[300px] sm:h-[350px] w-full pr-4">
+      <CardContent className="h-[300px] sm:h-[340px] w-full pt-4 pr-4">
         {activeTab === 'trends' ? (
           monthlyData.every(d => d.income === 0 && d.expense === 0) ? (
             <div className="h-full w-full flex flex-col items-center justify-center text-center">
-              <p className="text-sm text-muted-foreground">No financial data available for trends.</p>
-              <p className="text-xs text-slate-500 mt-1">Add transactions to populate these charts.</p>
+              <p className="text-xs text-muted-foreground">No financial data available for trend analysis.</p>
+              <p className="text-[11px] text-muted-foreground/80 mt-0.5">Log income and expenses to populate analytics.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
-              <AreaChart data={monthlyData} margin={{ top: 10, right: 5, left: -10, bottom: 0 }}>
+              <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#16a34a" stopOpacity={0.12} />
+                    <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#dc2626" stopOpacity={0.08} />
+                    <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" vertical={false} />
+                <CartesianGrid strokeDasharray="2 2" className="stroke-border/40" vertical={false} />
                 <XAxis
                   dataKey="name"
-                  stroke="#888888"
+                  stroke="#94a3b8"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  dy={10}
+                  dy={8}
                 />
                 <YAxis
-                  stroke="#888888"
+                  stroke="#94a3b8"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
@@ -164,24 +164,28 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
                     return `${symbol}${value}`;
                   }}
                 />
-                <Tooltip content={<CustomTooltipArea currency={currency} />} cursor={{ stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }} />
+                <Tooltip content={<CustomTooltipArea currency={currency} />} />
                 <Area
                   type="monotone"
                   dataKey="income"
-                  stroke="#10b981"
-                  strokeWidth={2}
+                  stroke="#16a34a"
+                  strokeWidth={1.8}
                   fillOpacity={1}
                   fill="url(#colorIncome)"
                   name="income"
+                  animationDuration={300}
+                  animationEasing="ease-out"
                 />
                 <Area
                   type="monotone"
                   dataKey="expense"
-                  stroke="#ef4444"
-                  strokeWidth={2}
+                  stroke="#dc2626"
+                  strokeWidth={1.8}
                   fillOpacity={1}
                   fill="url(#colorExpense)"
                   name="expense"
+                  animationDuration={300}
+                  animationEasing="ease-out"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -189,12 +193,12 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
         ) : (
           categoryData.length === 0 ? (
             <div className="h-full w-full flex flex-col items-center justify-center text-center">
-              <p className="text-sm text-muted-foreground">No expenses recorded for this month.</p>
-              <p className="text-xs text-slate-500 mt-1">Define expenses to see category breakdowns.</p>
+              <p className="text-xs text-muted-foreground">No expenses recorded for this month.</p>
+              <p className="text-[11px] text-muted-foreground/80 mt-0.5">Log category expenses to see distribution.</p>
             </div>
           ) : (
-            <div className="h-full w-full flex flex-col sm:flex-row items-center justify-center gap-8">
-              <div className="h-[220px] w-[220px] shrink-0">
+            <div className="h-full w-full flex flex-col sm:flex-row items-center justify-center gap-6">
+              <div className="h-[200px] w-[200px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
                   <PieChart>
                     <Tooltip content={<CustomTooltipPie currency={currency} />} />
@@ -202,13 +206,15 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
                       data={categoryData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={4}
+                      innerRadius={55}
+                      outerRadius={75}
+                      paddingAngle={2}
                       dataKey="value"
+                      animationDuration={300}
+                      animationEasing="ease-out"
                     >
                       {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="var(--card)" strokeWidth={1.5} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -216,17 +222,17 @@ export function DashboardCharts({ monthlyData, categoryData, activeMonthLabel }:
               </div>
 
               {/* Legend List */}
-              <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-2.5 max-w-md">
+              <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2 max-w-md">
                 {categoryData.map((entry) => (
                   <div key={entry.name} className="flex items-center justify-between text-xs border-b border-border/40 pb-1">
-                    <span className="flex items-center gap-2 text-muted-foreground">
+                    <span className="flex items-center gap-1.5 text-muted-foreground min-w-0">
                       <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        className="w-2 h-2 rounded-full shrink-0"
                         style={{ backgroundColor: entry.color }}
                       />
-                      <span className="truncate max-w-[100px]">{entry.name}</span>
+                      <span className="truncate max-w-[90px]">{entry.name}</span>
                     </span>
-                    <span className="font-semibold text-foreground ml-2">
+                    <span className="font-semibold text-foreground ml-2 tabular-nums">
                       {formatCurrency(entry.value, currency)}
                     </span>
                   </div>

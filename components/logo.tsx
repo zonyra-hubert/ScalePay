@@ -10,30 +10,22 @@ export function Logo({ className = '', size = 24 }: LogoProps) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 100 100"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      aria-label="ScalePay Logo"
     >
-      <rect width="100" height="100" rx="28" fill="#5865F2" />
-      <circle cx="42" cy="58" r="16" stroke="white" strokeWidth="5" fill="none" />
+      {/* Crisp geometric fintech logo mark */}
+      <rect width="32" height="32" rx="7" className="fill-foreground" />
       <path
-        d="M39.5 54.5 L42 52 V64"
-        stroke="white"
-        strokeWidth="4.5"
+        d="M8 21.5L14 14.5L19 19.5L24 10.5"
+        stroke="var(--background)"
+        strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill="none"
       />
-      <circle cx="58" cy="42" r="16" stroke="white" strokeWidth="5" fill="#5865F2" />
-      <path
-        d="M55.5 38.5 L58 36 V48"
-        stroke="white"
-        strokeWidth="4.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+      <circle cx="24" cy="10.5" r="1.5" fill="var(--background)" />
     </svg>
   );
 }

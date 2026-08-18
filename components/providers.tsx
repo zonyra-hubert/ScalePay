@@ -78,14 +78,16 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
 
   const { addNotification } = useNotifications();
 
+  const isInitialRef = useRef(true);
+
   // Load user profile & initial transactions
   useEffect(() => {
     let active = true;
 
     async function loadData() {
-      // If we don't have a profile yet, it's the initial load. Otherwise, it's a sync.
-      if (!profile) {
+      if (isInitialRef.current) {
         setLoading(true);
+        isInitialRef.current = false;
       } else {
         setIsSyncing(true);
       }
@@ -123,7 +125,7 @@ function DatabaseProviderWrapper({ children }: { children: React.ReactNode }) {
     if (!getDb().isDemoMode && supabase) {
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (event, session) => {
+      } = supabase.auth.onAuthStateChange(async (event) => {
         if (!active) return;
 
         if (
