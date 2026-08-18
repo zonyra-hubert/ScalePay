@@ -23,6 +23,7 @@ import { TransactionForm } from "@/components/forms/transaction-form";
 import { BudgetForm } from "@/components/forms/budget-form";
 import { formatCurrency, formatMonth, formatDate } from "@/utils/formatters";
 import { AIInsightsModal } from "@/components/dashboard/ai-insights-modal";
+import PollWidget from "@/components/dashboard/poll-widget";
 import { CATEGORY_PRESETS } from "@/utils/constants";
 import {
   TrendingUp,
@@ -382,6 +383,20 @@ export default function DashboardPage() {
           categoryData={categoryChartData}
           activeMonthLabel={formatMonth(activeMonth)}
         />
+
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader className="pb-3">
+            <div>
+              <CardTitle className="text-base sm:text-lg">
+                Community Poll
+              </CardTitle>
+              <CardDescription>Quick feedback from users</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="px-3 pb-4">
+            <PollWidget />
+          </CardContent>
+        </Card>
 
         {/* Budgets Tracker Card (Side Panel) */}
         <Card className="border-border bg-card shadow-sm">
